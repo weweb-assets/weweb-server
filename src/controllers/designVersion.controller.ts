@@ -48,7 +48,7 @@ export const setCacheVersionActive = async (req: Request, res: Response, next: N
 
         await db.models.designVersion.update({ isActive: false }, { where: { designId: req.params.designId, isActive: true } })
 
-        await designVersion.update({ isActive: true })
+        await db.models.designVersion.update({ isActive: true }, { where: { id: designVersion.id } })
 
         const designVersionsToDestroy = await db.models.designVersion.findAll({
             where: {

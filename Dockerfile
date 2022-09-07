@@ -1,11 +1,10 @@
 #=============== BUILD ================
 FROM node:16
 
-WORKDIR /usr/app/weweb-preview
+WORKDIR /usr/app/weweb-server
 COPY . .
 
 RUN npm install --quiet
-RUN npm run build
 
 #=========== ENV VARIABLES ============
 ENV NODE_ENV=production
@@ -24,6 +23,9 @@ ENV PRIVATE_KEY=$PRIVATE_KEY
 #PORT
 ARG PORT=3160
 ENV PORT=$PORT
+#HOSTNAME_PREVIEW
+ARG HOSTNAME_PREVIEW
+ENV HOSTNAME_PREVIEW=$HOSTNAME_PREVIEW
 #SERVER_PATH
 ARG SERVER_PATH
 ENV SERVER_PATH=$SERVER_PATH
@@ -83,9 +85,6 @@ ENV BUCKETNAME=$BUCKETNAME
 
 #============ EXPOSE PORTS ============
 EXPOSE $PORT
-EXPOSE 3161
-EXPOSE 3162
-EXPOSE 3163
 
 
 #============= START CMD ==============
