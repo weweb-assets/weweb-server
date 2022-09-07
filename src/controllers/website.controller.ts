@@ -5,8 +5,8 @@ import { website as websiteCore } from '../core'
 
 const internals = {
     getCachePath: (designId: string, designVersionId: string, cacheVersion: string) => {
-        if(process.env.CACHE_PATH){
-            return process.env.CACHE_PATH.replace(':designId', designId).replace(':designVersionId', designVersionId).replace(':cacheVersion', cacheVersion)
+        if(process.env.FILES_PATH){
+            return process.env.FILES_PATH.replace(':designId', designId).replace(':designVersionId', designVersionId).replace(':cacheVersion', cacheVersion)
         }
         else {
             return `designs/${designId}/cache/${designVersionId}/${cacheVersion}`
