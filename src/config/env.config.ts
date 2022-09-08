@@ -11,12 +11,12 @@ export default class Env {
 
     /**
      * Creates an instance of Env.
-     * ! if NODE_ENV is undefined, set to development.
+     * ! if NODE_ENV is undefined, set to production.
      * @param {string} path directory path
      * @memberof Env
      */
     constructor(path: string = '.') {
-        if (!process.env.NODE_ENV) process.env.NODE_ENV = 'development'
+        if (!process.env.NODE_ENV) process.env.NODE_ENV = 'production'
         this.path = path
     }
 

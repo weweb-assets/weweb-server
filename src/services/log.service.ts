@@ -60,7 +60,8 @@ export default class Logger {
         infoTable.push(
             [chalk.hex(this.wewebColor)('Name'), process.env.npm_package_name.toUpperCase()],
             [chalk.hex(this.wewebColor)('Time'), `${new Date()}`],
-            [chalk.hex(this.wewebColor)('Environment'), process.env.WW_ENV || 'prod'],
+            [chalk.hex(this.wewebColor)('Environment'), process.env.NODE_ENV],
+            [chalk.hex(this.wewebColor)('wwEnv'), process.env.WW_ENV],
             [chalk.hex(this.wewebColor)('Version'), `${process.env.npm_package_version} (node ${process.version})`],
             [chalk.hex(this.wewebColor)('Port'), process.env.PORT || 3000]
         )
