@@ -71,6 +71,7 @@ export default class PostgreSQL extends Sequelize {
 
         try {
             await this.authenticate()
+            log.info("Database successfully connected")
         } catch (err) /* istanbul ignore next */ {
             return log.error(err)
         }

@@ -16,6 +16,7 @@ export interface DesignVersion {
         default: boolean | null
         isDefaultPath: boolean | null
     }>
+    isActive: boolean
     readonly createdAt: Date
     readonly updatedAt: Date
 }
@@ -128,6 +129,7 @@ export const init = (sequelize: Sequelize): DesignVersionStatic => {
             designVersionId: this.designVersionId,
             cacheVersion: this.cacheVersion,
             homePageId: this.homePageId,
+            isActive: this.isActive,
             langs: this.langs,
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,

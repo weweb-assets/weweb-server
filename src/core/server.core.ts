@@ -2,6 +2,7 @@ import { Application } from 'express'
 import * as http from 'http'
 import { db } from '.'
 import { log } from '../services'
+import { website as websiteCore } from '../core'
 
 /**
  * Server core.
@@ -30,6 +31,8 @@ export default class Server {
      */
     public async run() {
         await db.run()
+        websiteCore.testFiles()
+        
         this.server.listen(this.app.get('port'), () => {
             log.printWeweb()
             log.printServerInfo()

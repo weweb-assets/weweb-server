@@ -3,17 +3,6 @@ import { log, s3 } from '../services'
 import { RequestWebsite } from 'ww-request'
 import { website as websiteCore } from '../core'
 
-const internals = {
-    getCachePath: (designId: string, designVersionId: string, cacheVersion: string) => {
-        if(process.env.FILES_PATH){
-            return process.env.FILES_PATH.replace(':projectId', designId).replace(':cacheVersion', cacheVersion)
-        }
-        else {
-            return `designs/${designId}/cache/${designVersionId}/${cacheVersion}`
-        }
-    }
-}
-
 /**
  * Get file from AWS.
  * @param req Request
@@ -37,7 +26,7 @@ export const getFile = async (req: RequestWebsite, res: Response, next: NextFunc
                 cacheControl = 'no-cache'
             }
 
-            const key = `${internals.getCachePath(req.designVersion.designId, req.designVersion.designVersionId, `${req.designVersion.cacheVersion}`)}/${req.params.path}`
+            const key = `${websiteCore.getCachePath(req.designVersion.designId, req.designVersion.designVersionId, `${req.designVersion.cacheVersion}`)}/${req.params.path}`
             const file = await websiteCore.getFile(key)
 
             return res
@@ -96,7 +85,7 @@ export const getDataFileV1 = async (req: RequestWebsite, res: Response, next: Ne
     try {
         log.debug('controllers:website:getDataFile')
 
-        const key = `${internals.getCachePath(req.designVersion.designId, req.designVersion.designVersionId, `${req.designVersion.cacheVersion}`)}/public/data/${req.params.pageId}.json`
+        const key = `${websiteCore.getCachePath(req.designVersion.designId, req.designVersion.designVersionId, `${req.designVersion.cacheVersion}`)}/public/data/${req.params.pageId}.json`
         const file = await websiteCore.getFile(key)
 
         let cacheControl = 'public, max-age=31536000'
@@ -135,7 +124,7 @@ export const getIndex = async (req: RequestWebsite, res: Response, next: NextFun
                 ? 'index.html'
                 : `${req.page.paths[req.params.lang || 'default'] || req.page.paths.default}/index.html`
         const lang = req.params.lang ? `${req.params.lang}/` : ''
-        const key = `${internals.getCachePath(req.designVersion.designId, req.designVersion.designVersionId, `${req.designVersion.cacheVersion}`)}/${lang}${path}`
+        const key = `${websiteCore.getCachePath(req.designVersion.designId, req.designVersion.designVersionId, `${req.designVersion.cacheVersion}`)}/${lang}${path}`
         const file = await websiteCore.getFile(key)
 
         if (process.env.HOSTNAME_PREVIEW && req.get('host').indexOf(`.${process.env.HOSTNAME_PREVIEW}`) !== -1) {

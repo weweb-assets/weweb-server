@@ -1,6 +1,6 @@
 {
     "name": "weweb-preview",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "description": "Description",
     "main": "./dist/index.js",
     "scripts": {
@@ -27,8 +27,8 @@
         "mime-types": "^2.1.35",
         "morgan": "^1.10.0",
         "pg": "^8.5.1",
-        "pino": "^8.0.0",
-        "pino-pretty": "3.6.1",
+        "pino": "^8.5.0",
+        "pino-pretty": "^9.1.0",
         "sequelize": "^6.5.0",
         "weweb-microservice-token": "^0.1.9"
     },
@@ -39,7 +39,7 @@
         "@types/debug": "^4.1.6",
         "@types/express": "^4.17.12",
         "@types/morgan": "^1.9.2",
-        "@types/pino": "^7.0.5",
+        "@types/pino-pretty": "^4.7.5",
         "@types/sequelize": "^4.28.9",
         "nodemon": "^2.0.9",
         "sequelize-cli": "^6.2.0",

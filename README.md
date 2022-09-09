@@ -54,9 +54,9 @@ The storage location is configured using environment variables.
 > You can use two variables in the path that can be found in the name of the ZIP of the project :
 >
 > -   `:projectId`
-> -   `:cacheVersion`
+> -   `:filesVersion`
 >
-> Ex: `./projects/:projectId/:cacheVersion` will fetch the project's files localy.
+> Ex: `./projects/:projectId/:filesVersion` will fetch the project's files localy.
 > FILES_PATH should end without a `/` .
 
 > #### SERVER_PATH :

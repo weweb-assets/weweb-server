@@ -31,7 +31,13 @@ export default class Logger {
      */
     constructor() {
         this.log = pino({
-            level: process.env.WW_LOG_LEVEL || 'error',
+            level: process.env.WW_LOG_LEVEL || 'trace',
+            transport: {
+                target: 'pino-pretty',
+                options: {
+                    colorize: true
+                }
+            },
         })
     }
 

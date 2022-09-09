@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
-import { db } from '../core'
+import { website as websiteCore, db } from '../core'
 import { utils, log } from '../services'
 
 /**
@@ -49,14 +49,6 @@ export const setCacheVersionActive = async (req: Request, res: Response, next: N
         await db.models.designVersion.update({ isActive: false }, { where: { designId: req.params.designId, isActive: true } })
 
         await db.models.designVersion.update({ isActive: true }, { where: { id: designVersion.id } })
-
-        const designVersionsToDestroy = await db.models.designVersion.findAll({
-            where: {
-                designId: req.params.designId,
-                isActive: false,
-            },
-        })
-        designVersionsToDestroy.map(async designVersionToDestroy => await designVersionToDestroy.destroy())
 
         return res.status(200).send({ success: true })
     } catch (err) /* istanbul ignore next */ {
@@ -149,5 +141,45 @@ export const getAllRoutes = async (req: Request, res: Response, next: NextFuncti
         return res.status(200).send(allRoutesHtml)
     } catch (err) /* istanbul ignore next */ {
         return next(err)
+    }
+}
+
+
+/**
+ * Get version.
+ * @param req Request
+ * @param res Response
+ */
+ export const getCacheVersions = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        log.debug('controllers:designVersion:cacheVersions')
+
+        if(!req.params.designId) return res.status(400).send({ success: false, code: 'BAD_PARAMS' })
+        
+        const designVersions = await db.models.designVersion.findAll({ where: { designId: req.params.designId } })
+
+        const cacheVersions = []
+        for(const designVersion of designVersions){
+
+            let filesOk = false
+
+            try {
+                const key = `${websiteCore.getCachePath(designVersion.designId, designVersion.designVersionId, `${designVersion.cacheVersion}`)}/index.html`
+                filesOk = !!(await websiteCore.getFile(key))
+            } catch (error) {
+                filesOk = false
+            }
+
+            cacheVersions.push({
+                cacheVersion: designVersion.cacheVersion,
+                isActive: designVersion.isActive,
+                filesOk,
+                createdAt: designVersion.createdAt
+            })
+        }
+
+        res.status(200).send({cacheVersions: cacheVersions}) 
+    } catch (err) /* istanbul ignore next */ {
+        return res.status(404).send()
     }
 }

@@ -88,7 +88,7 @@ export default class App {
                 ],
             })
         }
-        else {
+        else if(process.env.WW_SEED_PREVIEW) {
             wwmt.init({
                 name: 'weweb-preview',
                 seed: process.env.WW_SEED_PREVIEW,
@@ -106,6 +106,13 @@ export default class App {
                         seed: process.env.WW_SEED_PLUGINS,
                     },
                 ],
+            })
+        }
+        else {
+            wwmt.init({
+                name: 'empty',
+                seed: 'empty',
+                allowedServices: [],
             })
         }
     }

@@ -1,5 +1,5 @@
 import { Response } from 'express'
-import { s3 } from '../services'
+import { log, s3 } from '../services'
 import { db } from '.'
 import { Op } from 'sequelize'
 import axios from 'axios'
@@ -38,6 +38,19 @@ export default class Website {
     }
 
     /**
+     * Transform variables into file path
+     * @memberof Server
+     */
+    public getCachePath(designId: string, designVersionId: string, cacheVersion: string) {
+        if(process.env.FILES_PATH){
+            return process.env.FILES_PATH.replace(':projectId', designId).replace(':filesVersion', cacheVersion)
+        }
+        else {
+            return `designs/${designId}/cache/${designVersionId}/${cacheVersion}`
+        }
+    }
+
+    /**
      * Get file from S3 or file storage
      * @memberof Server
      */
@@ -62,20 +75,39 @@ export default class Website {
         }
         //From external storage
         else {
-            try {
-                const file = await axios.get(key, { responseType: 'arraybuffer' })
-                return {
-                    data: file.data,
-                    'ContentType': file.headers['content-type'],
-                    'ContentLength': file.headers['content-length'],
-                    ETag: file.headers['etag'],
-                    'LastModified': file.headers['last-modified'],
-                    'AcceptRanges': file.headers['accept-ranges'],
-                }
-            } catch (error) {
-                console.log(error)
+            const file = await axios.get(key, { responseType: 'arraybuffer' })
+            return {
+                data: file.data,
+                'ContentType': file.headers['content-type'],
+                'ContentLength': file.headers['content-length'],
+                ETag: file.headers['etag'],
+                'LastModified': file.headers['last-modified'],
+                'AcceptRanges': file.headers['accept-ranges'],
+            }            
+        }
+    }
+
+    /**
+     * Test file storage
+     */
+    public async testFiles(){
+        if(process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY && process.env.BUCKETREGION){
+            log.info(`Using S3 as file Storage : FILES_PATH=${process.env.FILES_PATH}`)
+            return await s3.testConnection()
+        }
+        else {
+            if(!process.env.FILES_PATH){
+                log.error(`Missing FILES_PATH environment variable`)
+                return false
             }
-            
+            else if(process.env.FILES_PATH.startsWith('./')){
+                log.info(`Using local file Storage : FILES_PATH=${process.env.FILES_PATH}`)
+                return true
+            }
+            else {
+                log.info(`Using distant file Storage : FILES_PATH=${process.env.FILES_PATH}`)
+                return true
+            }
         }
     }
 }

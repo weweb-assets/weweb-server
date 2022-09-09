@@ -22,6 +22,54 @@ export default class S3 {
             })
         }
         else this.s3 = null
+        
+    }
+
+    public async testConnection(){
+        try {
+            const testKey = 'ww_test_key/test.txt'
+
+            await new Promise((resolve, reject) => {
+                const params = {
+                    Body: 'TEST OBJECT', 
+                    Bucket: process.env.BUCKETNAME, 
+                    Key: testKey
+                };
+                this.s3.putObject(params, function(err: any, data: any) {
+                    if (err) reject(err);
+                    else     resolve(data); 
+                })
+            })
+
+            await new Promise((resolve, reject) => {
+                const params = {
+                    Bucket: process.env.BUCKETNAME, 
+                    Key: testKey
+                };
+                this.s3.getObject(params, function(err: any, data: any) {
+                    if (err) reject(err);
+                    else     resolve(data); 
+                })
+            })
+
+            await new Promise((resolve, reject) => {
+                const params = {
+                    Bucket: process.env.BUCKETNAME, 
+                    Key: testKey
+                };
+                this.s3.deleteObject(params, function(err: any, data: any) {
+                    if (err) reject(err);
+                    else     resolve(data); 
+                })
+            })
+
+            log.info('S3 Configuration is ok')
+            return true
+        } catch (error) {
+            log.error('S3 Configuration error')
+            log.error(error)
+            return false
+        }
     }
 
     public isConnected(): Boolean{
