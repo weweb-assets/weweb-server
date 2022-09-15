@@ -15,5 +15,15 @@
             "protocol": "inspector",
             "restart": true
         },
+        {
+            "type": "node",
+            "request": "attach",
+            "name": "AWS: Attach to STAGING",
+            "address": "23.23.215.194",
+            "localRoot": "${workspaceFolder}",
+            "remoteRoot": "/var/app/current/",
+            "protocol": "inspector",
+            "port": 3161
+        },
     ]
 }
