@@ -31,7 +31,7 @@
         "pino": "^8.5.0",
         "pino-pretty": "^9.1.0",
         "sequelize": "^6.5.0",
-        "typescript": "^4.7.2",
+        "sequelize-cli": "^6.2.0",
         "weweb-microservice-token": "^0.1.9"
     },
     "devDependencies": {
@@ -44,8 +44,8 @@
         "@types/pino-pretty": "^4.7.5",
         "@types/sequelize": "^4.28.9",
         "nodemon": "^2.0.9",
-        "sequelize-cli": "^6.2.0",
-        "ts-node": "^10.8.0"
+        "ts-node": "^10.8.0",
+        "typescript": "^4.7.2"
     },
     "repository": {
         "type": "git",
