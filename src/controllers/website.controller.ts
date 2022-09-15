@@ -15,18 +15,16 @@ export const getFile = async (req: RequestWebsite, res: Response, next: NextFunc
         const lastPath = req.params.path.split('/').pop()
 
         if (lastPath.includes('.') && !lastPath.endsWith('.')) {
-
             //No cache for core files
-            const noCacheFiles = [
-                "robots.txt",
-                "sitemap.xml",
-            ]
+            const noCacheFiles = ['robots.txt', 'sitemap.xml']
             let cacheControl = 'public, max-age=31536000'
-            if(noCacheFiles.includes(lastPath)){
+            if (noCacheFiles.includes(lastPath)) {
                 cacheControl = 'no-cache'
             }
 
-            const key = `${websiteCore.getCachePath(req.designVersion.designId, req.designVersion.designVersionId, `${req.designVersion.cacheVersion}`)}/${req.params.path}`
+            const key = `${websiteCore.getCachePath(req.designVersion.designId, req.designVersion.designVersionId, `${req.designVersion.cacheVersion}`)}/${
+                req.params.path
+            }`
             const file = await websiteCore.getFile(key)
 
             return res
@@ -81,16 +79,19 @@ export const getDataFileV1 = async (req: RequestWebsite, res: Response, next: Ne
  * @param req Request
  * @param res Response
  */
- export const getDataFile = async (req: RequestWebsite, res: Response, next: NextFunction) => {
+export const getDataFile = async (req: RequestWebsite, res: Response, next: NextFunction) => {
     try {
         log.debug('controllers:website:getDataFile')
 
-        const key = `${websiteCore.getCachePath(req.designVersion.designId, req.designVersion.designVersionId, `${req.designVersion.cacheVersion}`)}/public/data/${req.params.pageId}.json`
+        const key = `${websiteCore.getCachePath(
+            req.designVersion.designId,
+            req.designVersion.designVersionId,
+            `${req.designVersion.cacheVersion}`
+        )}/public/data/${req.params.pageId}.json`
         const file = await websiteCore.getFile(key)
 
         let cacheControl = 'public, max-age=31536000'
-        if(req.isPrivate){
-            
+        if (req.isPrivate) {
         }
 
         return res
@@ -109,7 +110,6 @@ export const getDataFileV1 = async (req: RequestWebsite, res: Response, next: Ne
     }
 }
 
-
 /**
  * Get index from AWS.
  * @param req Request
@@ -124,7 +124,11 @@ export const getIndex = async (req: RequestWebsite, res: Response, next: NextFun
                 ? 'index.html'
                 : `${req.page.paths[req.params.lang || 'default'] || req.page.paths.default}/index.html`
         const lang = req.params.lang ? `${req.params.lang}/` : ''
-        const key = `${websiteCore.getCachePath(req.designVersion.designId, req.designVersion.designVersionId, `${req.designVersion.cacheVersion}`)}/${lang}${path}`
+        const key = `${websiteCore.getCachePath(
+            req.designVersion.designId,
+            req.designVersion.designVersionId,
+            `${req.designVersion.cacheVersion}`
+        )}/${lang}${path}`
         const file = await websiteCore.getFile(key)
 
         if (process.env.HOSTNAME_PREVIEW && req.get('host').indexOf(`.${process.env.HOSTNAME_PREVIEW}`) !== -1) {

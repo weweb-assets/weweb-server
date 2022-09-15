@@ -41,7 +41,8 @@ The storage location is configured using environment variables.
 
 | Varible name | Required | Default | Values                                   | Description                                                                                                                |
 | ------------ | -------- | ------- | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| FILES_PATH   | Yes      | -       | -                                        | Path of a project's files in you storage. [More information](#files_path-)                                                 |
+| NODE_ENV     | Yes      | -       | production                               | Must be set to production                                                                                                  |
+| FILES_PATH   | Yes      | -       | -                                        | Path of a frontend project's files in you storage. [More information](#files_path-)                                        |
 | PUBLIC_KEY   | Yes      | -       | -                                        | Can be found in WeWeb Dashboard > Workspace > Self-Hosting                                                                 |
 | PRIVATE_KEY  | Yes      | -       | -                                        | Can be found in WeWeb Dashboard > Workspace > Self-Hosting                                                                 |
 | PORT         | No       | 80      | -                                        | Port where `weweb-server` should run                                                                                       |
@@ -56,7 +57,7 @@ The storage location is configured using environment variables.
 > -   `:projectId`
 > -   `:filesVersion`
 >
-> Ex: `./projects/:projectId/:filesVersion` will fetch the project's files localy.
+> Ex: `./projects/:projectId/:filesVersion` will fetch the frontend project's files localy.
 > FILES_PATH should end without a `/` .
 
 > #### SERVER_PATH :
@@ -69,7 +70,7 @@ The storage location is configured using environment variables.
 | Varible name | Required | Default value | Description                              |
 | ------------ | -------- | ------------- | ---------------------------------------- |
 | DB_HOSTNAME  | Yes      | -             | Database hostname                        |
-| DB_PORT      | Yes      | 5432          | Database port                            |
+| DB_PORT      | No       | 5432          | Database port                            |
 | DB_NAME      | Yes      | -             | Database name                            |
 | DB_USERNAME  | Yes      | -             | User name to connect to the Database     |
 | DB_PASSWORD  | Yes      | -             | User password to connect to the Database |

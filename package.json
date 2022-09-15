@@ -1,12 +1,13 @@
 {
     "name": "weweb-preview",
-    "version": "1.0.6",
+    "version": "1.0.7",
     "description": "Description",
     "main": "./dist/index.js",
     "scripts": {
         "extract": "node extract.js",
         "build": "tsc",
-        "start": "tsc && sequelize db:migrate && node ./dist/index.js",
+        "postbuild": "sequelize db:migrate",
+        "start": "node --inspect=0.0.0.0:3161 ./dist/index.js",
         "start:dev": "NODE_ENV=development sequelize db:migrate && nodemon --quiet"
     },
     "dependencies": {

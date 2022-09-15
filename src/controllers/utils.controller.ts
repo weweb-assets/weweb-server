@@ -7,7 +7,7 @@ import { log } from '../services'
  * @param req Request
  * @param res Response
  */
- export const ping = async (req: Request, res: Response, next: NextFunction) => {
+export const ping = async (req: Request, res: Response, next: NextFunction) => {
     log.debug('controllers:utils:ping')
     try {
         return res.status(200).send({ success: true })
@@ -21,18 +21,17 @@ import { log } from '../services'
  * @param req Request
  * @param res Response
  */
- export const version = async (req: Request, res: Response, next: NextFunction) => {
+export const version = async (req: Request, res: Response, next: NextFunction) => {
     try {
         log.debug('controllers:utils:version')
 
         const version = process.env.npm_package_version.split('.')
 
-        res.status(200).send({major: parseInt(version[0]), minor: parseInt(version[1]), patch:parseInt(version[2])})
+        res.status(200).send({ major: parseInt(version[0]), minor: parseInt(version[1]), patch: parseInt(version[2]) })
     } catch (err) /* istanbul ignore next */ {
         return res.status(404).send()
     }
 }
-
 
 /**
  * Ping.
@@ -42,7 +41,7 @@ import { log } from '../services'
 export const testConfig = async (req: Request, res: Response, next: NextFunction) => {
     log.debug('controllers:utils:testConfig')
 
-    if(!req.body.publicKey || !req.body.privateKey) return res.status(400).send({success: false, message: "BAD_PARAMS"})
+    if (!req.body.publicKey || !req.body.privateKey) return res.status(400).send({ success: false, message: 'BAD_PARAMS' })
 
     let filesOk, dataBaseOk, publicKeyOk, privateKeyOk
 
@@ -54,28 +53,27 @@ export const testConfig = async (req: Request, res: Response, next: NextFunction
     }
     try {
         await db.models.designVersion.findOne()
-        log.debug("Database connection is ok")
+        log.debug('Database connection is ok')
         dataBaseOk = true
     } catch (error) {
         log.error(error)
         dataBaseOk = false
     }
     try {
-
         publicKeyOk = process.env.PUBLIC_KEY === req.body.publicKey
-        if(publicKeyOk) log.debug("PUBLIC_KEY is ok")
-        else log.error("Missing or wrong PUBLIC_KEY environment variable")
+        if (publicKeyOk) log.debug('PUBLIC_KEY is ok')
+        else log.error('Missing or wrong PUBLIC_KEY environment variable')
 
         privateKeyOk = process.env.PRIVATE_KEY === req.body.private
-        if(privateKeyOk) log.debug("PRIVATE_KEY is ok")
-        else log.error("Missing or wrong PRIVATE_KEY environment variable")
+        if (privateKeyOk) log.debug('PRIVATE_KEY is ok')
+        else log.error('Missing or wrong PRIVATE_KEY environment variable')
 
-        return res.status(200).send({ 
-            running: true, 
-            files: filesOk, 
-            database: dataBaseOk, 
-            publicKey:publicKeyOk, 
-            privateKey: privateKeyOk
+        return res.status(200).send({
+            running: true,
+            files: filesOk,
+            database: dataBaseOk,
+            publicKey: publicKeyOk,
+            privateKey: privateKeyOk,
         })
     } catch (err) /* istanbul ignore next */ {
         return next(err)

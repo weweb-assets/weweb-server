@@ -24,10 +24,7 @@ export default (app: Application) => {
         websiteMdwl.ensureAuth,
         websiteCtrl.getDataFile
     )
-    app.route(`${utils.getServerPath()}/:path(*.*)`).get(
-        websiteMdwl.ensureWebsite,
-        websiteCtrl.getFile,
-    )
+    app.route(`${utils.getServerPath()}/:path(*.*)`).get(websiteMdwl.ensureWebsite, websiteCtrl.getFile)
     app.route(`${utils.getServerPath()}/:lang(${LANGS})?/:path(*)`).get(
         websiteMdwl.ensureWebsite,
         websiteMdwl.ensureRedirection,

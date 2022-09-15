@@ -35,8 +35,8 @@ export default class Logger {
             transport: {
                 target: 'pino-pretty',
                 options: {
-                    colorize: true
-                }
+                    colorize: true,
+                },
             },
         })
     }

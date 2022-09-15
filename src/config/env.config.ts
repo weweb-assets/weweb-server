@@ -16,7 +16,7 @@ export default class Env {
      * @memberof Env
      */
     constructor(path: string = '.') {
-        if (!process.env.NODE_ENV) process.env.NODE_ENV = 'production'
+        if (!process.env.NODE_ENV) process.env.NODE_ENV = 'development'
         this.path = path
     }
 

@@ -7,5 +7,8 @@ const wwmt = require('weweb-microservice-token')
     Page Route
 \================================================================================================*/
 export default (app: Application) => {
-    app.route(`${utils.getServerPath()}/microservice/designs/:designId/versions/:designVersionId/pages` as string).post(wwmt.verifyWwServiceToken, pageCtrl.createPage)
+    app.route(`${utils.getServerPath()}/microservice/designs/:designId/versions/:designVersionId/pages` as string).post(
+        wwmt.verifyWwServiceToken,
+        pageCtrl.createPage
+    )
 }

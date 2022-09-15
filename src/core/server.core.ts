@@ -32,7 +32,7 @@ export default class Server {
     public async run() {
         await db.run()
         websiteCore.testFiles()
-        
+
         this.server.listen(this.app.get('port'), () => {
             log.printWeweb()
             log.printServerInfo()

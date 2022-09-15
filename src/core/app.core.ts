@@ -75,8 +75,7 @@ export default class App {
      * @memberof App
      */
     private initMicroservices() {
-
-        if(process.env.PUBLIC_KEY && process.env.PRIVATE_KEY){
+        if (process.env.PUBLIC_KEY && process.env.PRIVATE_KEY) {
             wwmt.init({
                 name: process.env.PUBLIC_KEY,
                 seed: process.env.PRIVATE_KEY,
@@ -84,11 +83,10 @@ export default class App {
                     {
                         name: process.env.PUBLIC_KEY,
                         seed: process.env.PRIVATE_KEY,
-                    }
+                    },
                 ],
             })
-        }
-        else if(process.env.WW_SEED_PREVIEW) {
+        } else if (process.env.WW_SEED_PREVIEW) {
             wwmt.init({
                 name: 'weweb-preview',
                 seed: process.env.WW_SEED_PREVIEW,
@@ -107,8 +105,7 @@ export default class App {
                     },
                 ],
             })
-        }
-        else {
+        } else {
             wwmt.init({
                 name: 'empty',
                 seed: 'empty',
@@ -132,12 +129,12 @@ export default class App {
         }
         this.app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
             log.error(err)
-            if(process.env.WW_ENV) Sentry.captureException(err)
+            if (process.env.WW_ENV) Sentry.captureException(err)
             return res.status(500).send({ success: false, code: 'INTERNAL_ERROR' })
         })
         process.on('uncaughtException', function (err) {
             log.error(err)
-            if(process.env.WW_ENV) Sentry.captureException(err)
+            if (process.env.WW_ENV) Sentry.captureException(err)
         })
     }
 }

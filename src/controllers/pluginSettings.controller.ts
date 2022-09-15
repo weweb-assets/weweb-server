@@ -37,9 +37,9 @@ export const createPluginSettings = async (req: Request, res: Response, next: Ne
 export const updateAuth0CurrentUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         log.debug('controllers:pluginSettings:updateAuth0CurrentUser')
-        
-        if(!process.env.WEWEB_PLUGINS_URL) return res.status(403).send('FEATURE_NOT_AVAILABLE')
-        
+
+        if (!process.env.WEWEB_PLUGINS_URL) return res.status(403).send('FEATURE_NOT_AVAILABLE')
+
         if (!utils.isDefined([req.params.designId, req.params.settingsId])) return res.status(400).send({ success: false, code: 'BAD_PARAMS' })
 
         const settings = await db.models.pluginSettings.findByPk(req.params.settingsId)

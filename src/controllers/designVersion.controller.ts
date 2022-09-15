@@ -41,8 +41,8 @@ export const setCacheVersionActive = async (req: Request, res: Response, next: N
         const designVersion = await db.models.designVersion.findOne({
             where: {
                 designId: req.params.designId,
-                cacheVersion: req.params.cacheVersion
-            }
+                cacheVersion: req.params.cacheVersion,
+            },
         })
         if (!designVersion) return res.status(404).send({ success: false, code: 'NOT_FOUND' })
 
@@ -144,23 +144,21 @@ export const getAllRoutes = async (req: Request, res: Response, next: NextFuncti
     }
 }
 
-
 /**
  * Get version.
  * @param req Request
  * @param res Response
  */
- export const getCacheVersions = async (req: Request, res: Response, next: NextFunction) => {
+export const getCacheVersions = async (req: Request, res: Response, next: NextFunction) => {
     try {
         log.debug('controllers:designVersion:cacheVersions')
 
-        if(!req.params.designId) return res.status(400).send({ success: false, code: 'BAD_PARAMS' })
-        
+        if (!req.params.designId) return res.status(400).send({ success: false, code: 'BAD_PARAMS' })
+
         const designVersions = await db.models.designVersion.findAll({ where: { designId: req.params.designId } })
 
         const cacheVersions = []
-        for(const designVersion of designVersions){
-
+        for (const designVersion of designVersions) {
             let filesOk = false
 
             try {
@@ -174,11 +172,11 @@ export const getAllRoutes = async (req: Request, res: Response, next: NextFuncti
                 cacheVersion: designVersion.cacheVersion,
                 isActive: designVersion.isActive,
                 filesOk,
-                createdAt: designVersion.createdAt
+                createdAt: designVersion.createdAt,
             })
         }
 
-        res.status(200).send({cacheVersions: cacheVersions}) 
+        res.status(200).send({ cacheVersions: cacheVersions })
     } catch (err) /* istanbul ignore next */ {
         return res.status(404).send()
     }

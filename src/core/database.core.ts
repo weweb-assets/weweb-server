@@ -32,7 +32,7 @@ export default class PostgreSQL extends Sequelize {
             dialect: 'postgres',
             protocol: 'postgres',
             logging: false,
-            port: port || 5432
+            port: port || 5432,
             // dialectOptions: {
             //     ssl: process.env.NODE_ENV === 'production'
             // }
@@ -71,7 +71,7 @@ export default class PostgreSQL extends Sequelize {
 
         try {
             await this.authenticate()
-            log.info("Database successfully connected")
+            log.info('Database successfully connected')
         } catch (err) /* istanbul ignore next */ {
             return log.error(err)
         }

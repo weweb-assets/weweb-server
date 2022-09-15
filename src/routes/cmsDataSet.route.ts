@@ -13,7 +13,10 @@ export default (app: Application) => {
         cmsDataSetCtrl.createCmsDataSet
     )
     app.route(`${utils.getServerPath()}/ww/cms_data_sets/:cmsDataSetId/fetch` as string).post(websiteMdwl.ensureWebsite, cmsDataSetCtrl.fetchCmsDataSet)
-    app.route(`${utils.getServerPath()}/ww/cms_data_sets/:cmsDataSetId/airtable/record` as string).post(websiteMdwl.ensureWebsite, cmsDataSetCtrl.createAirtableRecord)
+    app.route(`${utils.getServerPath()}/ww/cms_data_sets/:cmsDataSetId/airtable/record` as string).post(
+        websiteMdwl.ensureWebsite,
+        cmsDataSetCtrl.createAirtableRecord
+    )
     app.route(`${utils.getServerPath()}/ww/cms_data_sets/:cmsDataSetId/airtable/record/:recordId` as string)
         .patch(websiteMdwl.ensureWebsite, cmsDataSetCtrl.updateAirtableRecord)
         .delete(websiteMdwl.ensureWebsite, cmsDataSetCtrl.deleteAirtableRecord)

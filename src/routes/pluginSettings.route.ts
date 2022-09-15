@@ -12,5 +12,8 @@ export default (app: Application) => {
         wwmt.verifyWwServiceToken,
         pluginSettingsCtrl.createPluginSettings
     )
-    app.route(`${utils.getServerPath()}/ww/settings/:settingsId/auth0/users/current` as string).patch(websiteMdwl.ensureWebsite, pluginSettingsCtrl.updateAuth0CurrentUser)
+    app.route(`${utils.getServerPath()}/ww/settings/:settingsId/auth0/users/current` as string).patch(
+        websiteMdwl.ensureWebsite,
+        pluginSettingsCtrl.updateAuth0CurrentUser
+    )
 }

@@ -48,7 +48,7 @@ export const fetchCmsDataSet = async (req: RequestWebsite, res: Response, next: 
     try {
         log.debug('controllers:cmsDataSet:fetchCmsDataSet')
 
-        if(!process.env.WEWEB_PLUGINS_URL) return res.status(403).send('FEATURE_NOT_AVAILABLE')
+        if (!process.env.WEWEB_PLUGINS_URL) return res.status(403).send('FEATURE_NOT_AVAILABLE')
 
         if (!utils.isDefined([req.designVersion, req.params.cmsDataSetId])) return res.status(400).send({ success: false, code: 'BAD_PARAMS' })
 
@@ -81,8 +81,8 @@ export const fetchCmsDataSet = async (req: RequestWebsite, res: Response, next: 
 export const createAirtableRecord = async (req: RequestWebsite, res: Response, next: NextFunction) => {
     try {
         log.debug('controllers:cmsDataSet:createAirtableRecord')
-        
-        if(!process.env.WEWEB_PLUGINS_URL) return res.status(403).send('FEATURE_NOT_AVAILABLE')
+
+        if (!process.env.WEWEB_PLUGINS_URL) return res.status(403).send('FEATURE_NOT_AVAILABLE')
 
         if (!utils.isDefined([req.designVersion, req.params.cmsDataSetId, req.body.data])) return res.status(400).send({ success: false, code: 'BAD_PARAMS' })
 
@@ -115,8 +115,8 @@ export const createAirtableRecord = async (req: RequestWebsite, res: Response, n
 export const updateAirtableRecord = async (req: RequestWebsite, res: Response, next: NextFunction) => {
     try {
         log.debug('controllers:cmsDataSet:updateAirtableRecord')
-        
-        if(!process.env.WEWEB_PLUGINS_URL) return res.status(403).send('FEATURE_NOT_AVAILABLE')
+
+        if (!process.env.WEWEB_PLUGINS_URL) return res.status(403).send('FEATURE_NOT_AVAILABLE')
 
         if (!utils.isDefined([req.designVersion, req.params.cmsDataSetId, req.params.recordId, req.body.data]))
             return res.status(400).send({ success: false, code: 'BAD_PARAMS' })
@@ -150,9 +150,9 @@ export const updateAirtableRecord = async (req: RequestWebsite, res: Response, n
 export const deleteAirtableRecord = async (req: RequestWebsite, res: Response, next: NextFunction) => {
     try {
         log.debug('controllers:cmsDataSet:deleteAirtableRecord')
-        
-        if(!process.env.WEWEB_PLUGINS_URL) return res.status(403).send('FEATURE_NOT_AVAILABLE')
-        
+
+        if (!process.env.WEWEB_PLUGINS_URL) return res.status(403).send('FEATURE_NOT_AVAILABLE')
+
         if (!utils.isDefined([req.designVersion, req.params.cmsDataSetId, req.params.recordId]))
             return res.status(400).send({ success: false, code: 'BAD_PARAMS' })
 

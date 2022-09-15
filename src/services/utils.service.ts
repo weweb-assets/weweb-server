@@ -6,7 +6,6 @@ import { Request } from 'express'
  * @class Utils
  */
 export default class Utils {
-
     /**
      * Check if all elements are defined.
      * @param {[any]} objects
@@ -69,20 +68,20 @@ export default class Utils {
         const cookies = this.getCookies(req)
         return cookies[name] || null
     }
-    
+
     /**
      * Get server path.
      * @returns {string}
      * @memberof Utils
      */
-     public getServerPath(): string {
-        if(!process.env.SERVER_PATH) {
+    public getServerPath(): string {
+        if (!process.env.SERVER_PATH) {
             return ''
         }
 
         let serverPath = process.env.SERVER_PATH
-        if(!serverPath.startsWith('/'))  serverPath = '/' + serverPath
-        if(serverPath.endsWith('/'))  serverPath = serverPath.slice(0, -1)
+        if (!serverPath.startsWith('/')) serverPath = '/' + serverPath
+        if (serverPath.endsWith('/')) serverPath = serverPath.slice(0, -1)
         return serverPath
     }
 }
