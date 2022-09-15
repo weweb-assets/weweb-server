@@ -6,7 +6,7 @@
     "scripts": {
         "extract": "node extract.js",
         "build": "tsc",
-        "postbuild": "sequelize db:migrate",
+        "prestart": "sequelize db:migrate",
         "start": "node --inspect=0.0.0.0:3161 ./dist/index.js",
         "start:dev": "NODE_ENV=development sequelize db:migrate && nodemon --quiet"
     },
