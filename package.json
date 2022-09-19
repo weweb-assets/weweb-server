@@ -1,12 +1,12 @@
 {
     "name": "weweb-preview",
-    "version": "1.0.7",
+    "version": "1.0.8",
     "description": "Description",
     "main": "./dist/index.js",
     "scripts": {
         "extract": "node extract.js",
         "build": "tsc",
-        "postbuild": "sequelize db:migrate",
+        "prestart": "node_modules/sequelize-cli/lib/sequelize db:migrate",
         "start": "node --inspect=0.0.0.0:3161 ./dist/index.js",
         "start:dev": "NODE_ENV=development sequelize db:migrate && nodemon --quiet"
     },
@@ -31,6 +31,7 @@
         "pino": "^8.5.0",
         "pino-pretty": "^9.1.0",
         "sequelize": "^6.5.0",
+        "sequelize-cli": "^6.2.0",
         "weweb-microservice-token": "^0.1.9"
     },
     "devDependencies": {
@@ -43,7 +44,6 @@
         "@types/pino-pretty": "^4.7.5",
         "@types/sequelize": "^4.28.9",
         "nodemon": "^2.0.9",
-        "sequelize-cli": "^6.2.0",
         "ts-node": "^10.8.0",
         "typescript": "^4.7.2"
     },

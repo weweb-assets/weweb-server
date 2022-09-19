@@ -64,7 +64,7 @@ export const testConfig = async (req: Request, res: Response, next: NextFunction
         if (publicKeyOk) log.debug('PUBLIC_KEY is ok')
         else log.error('Missing or wrong PUBLIC_KEY environment variable')
 
-        privateKeyOk = process.env.PRIVATE_KEY === req.body.private
+        privateKeyOk = process.env.PRIVATE_KEY === req.body.privateKey
         if (privateKeyOk) log.debug('PRIVATE_KEY is ok')
         else log.error('Missing or wrong PRIVATE_KEY environment variable')
 
