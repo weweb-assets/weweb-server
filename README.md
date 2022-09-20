@@ -42,7 +42,7 @@ The storage location is configured using environment variables.
 | Varible name | Required | Default | Values                                   | Description                                                                                                                |
 | ------------ | -------- | ------- | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | NODE_ENV     | Yes      | -       | production                               | Must be set to production                                                                                                  |
-| FILES_PATH   | Yes      | -       | -                                        | Path of a frontend project's files in you storage. [More information](#files_path-)                                        |
+| FILES_PATH   | Yes      | -       | -                                        | Path of a frontend project's files in your storage. [More information](#files_path-)                                       |
 | PUBLIC_KEY   | Yes      | -       | -                                        | Can be found in WeWeb Dashboard > Workspace > Self-Hosting                                                                 |
 | PRIVATE_KEY  | Yes      | -       | -                                        | Can be found in WeWeb Dashboard > Workspace > Self-Hosting                                                                 |
 | PORT         | No       | 80      | -                                        | Port where `weweb-server` should run                                                                                       |
@@ -74,6 +74,7 @@ The storage location is configured using environment variables.
 | DB_NAME      | Yes      | -             | Database name                            |
 | DB_USERNAME  | Yes      | -             | User name to connect to the Database     |
 | DB_PASSWORD  | Yes      | -             | User password to connect to the Database |
+| DB_SSL       | No       | false         | Use SSL connection to database           |
 
 #### AWS S3 configuration (not required if a different storage is used) :
 

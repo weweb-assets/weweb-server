@@ -106,6 +106,7 @@ export default class App {
                 ],
             })
         } else {
+            log.error('PUBLIC_KEY and PRIVATE_KEY not set')
             wwmt.init({
                 name: 'empty',
                 seed: 'empty',

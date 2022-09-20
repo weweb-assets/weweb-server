@@ -29,7 +29,9 @@ export const ensureWebsite = async (req: RequestWebsite, res: Response, next: Ne
             req.designVersion = await db.models.designVersion.findOne({ where: { domain: host, isActive: true } })
         }
 
-        if (!req.designVersion) return res.status(404).send()
+        if (!req.designVersion) {
+            return res.status(404).set({ 'cache-control': 'no-cache' }).send()
+        }
 
         return next()
     } catch (err) /* istanbul ignore next */ {
@@ -146,7 +148,7 @@ export const ensurePageFromId = async (req: RequestWebsite, res: Response, next:
         })
         if (!req.page) {
             const redirectUrl = await websiteCore.get404Url(req.designVersion.id)
-            return res.status(404).send({ redirectUrl })
+            return res.status(404).set({ 'cache-control': 'no-cache' }).send({ redirectUrl })
         }
 
         return next()
@@ -188,7 +190,12 @@ export const ensureAuth = async (req: RequestWebsite, res: Response, next: NextF
                 pageId: pluginSettings.publicData.afterNotSignInPageId,
             },
         })
-        if (!page) return { redirectUrl: await websiteCore.get404Url(req.designVersion.id) }
+        if (!page) {
+            return res
+                .status(404)
+                .set({ 'cache-control': 'no-cache' })
+                .send({ redirectUrl: await websiteCore.get404Url(req.designVersion.id) })
+        }
 
         const lang = (req.params.lang || req.query.wwlang) as string
         delete req.query.wwlang
@@ -224,7 +231,9 @@ export const ensureAuth = async (req: RequestWebsite, res: Response, next: NextF
         }
 
         if (!isAuth) {
-            return req.isIndex ? res.redirect(redirectUrl) : res.status(401).send({ redirectUrl })
+            return req.isIndexHtml
+                ? res.set({ 'cache-control': 'no-cache' }).redirect(redirectUrl)
+                : res.status(401).set({ 'cache-control': 'no-cache' }).send({ redirectUrl })
         }
 
         return next()

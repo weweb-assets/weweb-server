@@ -33,9 +33,12 @@ export default class PostgreSQL extends Sequelize {
             protocol: 'postgres',
             logging: false,
             port: port || 5432,
-            // dialectOptions: {
-            //     ssl: process.env.NODE_ENV === 'production'
-            // }
+            dialectOptions: {
+                ssl: {
+                    require: !!process.env.DB_SSL,
+                    rejectUnauthorized: false,
+                },
+            },
         })
     }
 

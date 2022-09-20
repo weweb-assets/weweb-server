@@ -22,5 +22,11 @@ module.exports = {
         host: process.env.RDS_HOSTNAME || process.env.DB_HOSTNAME,
         port: process.env.RDS_PORT || process.env.DB_PORT,
         dialect: 'postgres',
+        dialectOptions: {
+            ssl: {
+                require: !!process.env.DB_SSL,
+                rejectUnauthorized: false,
+            },
+        },
     },
 }

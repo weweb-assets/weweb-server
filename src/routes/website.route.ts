@@ -30,7 +30,7 @@ export default (app: Application) => {
         websiteMdwl.ensureRedirection,
         websiteMdwl.ensurePage,
         (req: RequestWebsite, _, next: NextFunction) => {
-            req.isIndex = true
+            req.isIndexHtml = true
             return next()
         },
         websiteMdwl.ensureAuth,

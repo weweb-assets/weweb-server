@@ -16,7 +16,11 @@ export default (app: Application) => {
         designVersionCtrl.setCacheVersionActive
     )
 
-    app.route(`${utils.getServerPath()}/microservice/designs/:designId/get_cache_versions`).post(designVersionCtrl.getCacheVersions)
+    app.route(`${utils.getServerPath()}/microservice/designs/:designId/get_cache_versions`).post(wwmt.verifyWwServiceToken, designVersionCtrl.getCacheVersions)
+
+    app.route(`${utils.getServerPath()}/microservice/designs/:designId/domain`)
+        .get(wwmt.verifyWwServiceToken, designVersionCtrl.getDomain)
+        .post(wwmt.verifyWwServiceToken, designVersionCtrl.updateDomain)
 
     app.route(`${utils.getServerPath()}/admin/designs/:designId/previews`).get(designVersionCtrl.getAllRoutes)
 }

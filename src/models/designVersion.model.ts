@@ -9,6 +9,7 @@ export interface DesignVersion {
     readonly id: string
     designId: string
     designVersionId: string
+    domain: string
     cacheVersion: number
     homePageId: string
     langs: Array<{

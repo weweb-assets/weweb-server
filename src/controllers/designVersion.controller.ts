@@ -181,3 +181,47 @@ export const getCacheVersions = async (req: Request, res: Response, next: NextFu
         return res.status(404).send()
     }
 }
+
+/**
+ * Get domain name.
+ * @param req Request
+ * @param res Response
+ */
+export const getDomain = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        log.debug('controllers:designVersion:getDomain')
+
+        if (!req.params.designId) return res.status(400).send({ success: false, code: 'BAD_PARAMS' })
+
+        const designVersion = await db.models.designVersion.findOne({ where: { designId: req.params.designId } })
+
+        if (!designVersion) return res.status(404).send({ success: false, code: 'DESIGNVERSION_NOT_FOUND' })
+
+        res.status(200).send({ domain: designVersion.domain })
+    } catch (err) /* istanbul ignore next */ {
+        return res.status(404).send()
+    }
+}
+
+/**
+ * Update domain.
+ * @param req Request
+ * @param res Response
+ */
+export const updateDomain = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        log.debug('controllers:designVersion:updateDomain')
+
+        if (!req.params.designId || !req.body.domain) return res.status(400).send({ success: false, code: 'BAD_PARAMS' })
+
+        const designVersions = await db.models.designVersion.findAll({ where: { designId: req.params.designId } })
+
+        for (const designVersion of designVersions) {
+            await designVersion.update({ domain: req.body.domain })
+        }
+
+        res.status(200).send({ success: true })
+    } catch (err) /* istanbul ignore next */ {
+        return res.status(404).send()
+    }
+}
