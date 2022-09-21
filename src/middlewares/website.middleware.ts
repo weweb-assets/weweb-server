@@ -72,9 +72,9 @@ export const ensureRedirection = async (req: RequestWebsite, res: Response, next
                 if (defaultLang && defaultLang.isDefaultPath) {
                     path = `${defaultLang.lang}/${path}`
                 }
-                return res.status(parseInt(redirection.status)).redirect(`/${path}`)
+                return res.redirect(parseInt(redirection.status), `/${path}`)
             default:
-                return res.status(parseInt(redirection.status)).redirect(redirection.urlTarget)
+                return res.redirect(parseInt(redirection.status), redirection.urlTarget)
         }
     } catch (err) /* istanbul ignore next */ {
         return next(err)
@@ -92,14 +92,11 @@ export const ensurePage = async (req: RequestWebsite, res: Response, next: NextF
         log.debug('middlewares:website:ensurePage')
         req.params.path = req.params.path || ''
 
-        let pathWithTrailing = req.params.path
-        if (!pathWithTrailing.endsWith('/')) {
-            pathWithTrailing = pathWithTrailing + '/'
+        if (req.params.path !== '' && !req.params.path.endsWith('/')) {
+            return res.redirect(301, `/${req.params.path}/`)
         }
-        let pathWithoutTrailing = req.params.path
-        if (pathWithoutTrailing.endsWith('/')) {
-            pathWithoutTrailing = pathWithoutTrailing.slice(0, -1)
-        }
+
+        const pathWithoutTrailing = req.params.path !== '' ? req.params.path.slice(0, -1) : ''
 
         req.page = !req.params.path
             ? await db.models.page.findOne({
@@ -115,8 +112,6 @@ export const ensurePage = async (req: RequestWebsite, res: Response, next: NextF
                       [Op.or]: [
                           { paths: { [Op.contains]: { [req.params.lang || 'default']: req.params.path } } },
                           { paths: { [Op.contains]: { ['default']: req.params.path } } },
-                          { paths: { [Op.contains]: { [req.params.lang || 'default']: pathWithTrailing } } },
-                          { paths: { [Op.contains]: { ['default']: pathWithTrailing } } },
                           { paths: { [Op.contains]: { [req.params.lang || 'default']: pathWithoutTrailing } } },
                           { paths: { [Op.contains]: { ['default']: pathWithoutTrailing } } },
                       ],
