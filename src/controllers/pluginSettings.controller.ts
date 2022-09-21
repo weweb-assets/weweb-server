@@ -52,7 +52,7 @@ export const updateAuth0CurrentUser = async (req: Request, res: Response, next: 
             { session: req.cookies.session }
         )
 
-        return res.status(200).send({ success: true, data })
+        return res.status(200).set({ 'cache-control': 'no-cache' }).send({ success: true, data })
     } catch (err) /* istanbul ignore next */ {
         return next(err)
     }

@@ -128,6 +128,7 @@ export const init = (sequelize: Sequelize): DesignVersionStatic => {
             id: this.id,
             designId: this.designId,
             designVersionId: this.designVersionId,
+            domain: this.domain,
             cacheVersion: this.cacheVersion,
             homePageId: this.homePageId,
             isActive: this.isActive,

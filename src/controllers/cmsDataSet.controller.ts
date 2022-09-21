@@ -67,7 +67,7 @@ export const fetchCmsDataSet = async (req: RequestWebsite, res: Response, next: 
             }
         )
 
-        return res.status(200).send(data)
+        return res.status(200).set({ 'cache-control': 'no-cache' }).send(data)
     } catch (err) /* istanbul ignore next */ {
         return next(err)
     }
@@ -101,7 +101,7 @@ export const createAirtableRecord = async (req: RequestWebsite, res: Response, n
             }
         )
 
-        return res.status(200).send(data)
+        return res.status(200).set({ 'cache-control': 'no-cache' }).send(data)
     } catch (err) /* istanbul ignore next */ {
         return next(err)
     }
@@ -136,7 +136,7 @@ export const updateAirtableRecord = async (req: RequestWebsite, res: Response, n
             }
         )
 
-        return res.status(200).send(data)
+        return res.status(200).set({ 'cache-control': 'no-cache' }).send(data)
     } catch (err) /* istanbul ignore next */ {
         return next(err)
     }
@@ -170,7 +170,7 @@ export const deleteAirtableRecord = async (req: RequestWebsite, res: Response, n
             }
         )
 
-        return res.status(200).send(data)
+        return res.status(200).set({ 'cache-control': 'no-cache' }).send(data)
     } catch (err) /* istanbul ignore next */ {
         return next(err)
     }

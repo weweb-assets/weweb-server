@@ -236,6 +236,8 @@ export const ensureAuth = async (req: RequestWebsite, res: Response, next: NextF
                 : res.status(401).set({ 'cache-control': 'no-cache' }).send({ redirectUrl })
         }
 
+        req.isPrivate = true
+
         return next()
     } catch (err) /* istanbul ignore next */ {
         return next(err)

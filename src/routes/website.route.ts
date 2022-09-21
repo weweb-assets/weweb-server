@@ -12,12 +12,6 @@ const LANGS = ['ab','aa','af','ak','sq','am','ar','an','hy','as','av','ae','ay',
     Website Route
 \================================================================================================*/
 export default (app: Application) => {
-    app.route(`${utils.getServerPath()}/:lang(${LANGS})?/:path(*)?/data.json`).get(
-        websiteMdwl.ensureWebsite,
-        websiteMdwl.ensurePage,
-        websiteMdwl.ensureAuth,
-        websiteCtrl.getDataFileV1
-    )
     app.route(`${utils.getServerPath()}/public/data/:pageId(*).json`).get(
         websiteMdwl.ensureWebsite,
         websiteMdwl.ensurePageFromId,

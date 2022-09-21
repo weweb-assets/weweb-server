@@ -47,34 +47,6 @@ export const getFile = async (req: RequestWebsite, res: Response, next: NextFunc
 }
 
 /**
- * Get data.json from AWS.
- * @param req Request
- * @param res Response
- */
-export const getDataFileV1 = async (req: RequestWebsite, res: Response, next: NextFunction) => {
-    try {
-        log.debug('controllers:website:getDataFileV1')
-
-        const key = `designs/${req.designVersion.designId}/cache/${req.designVersion.designVersionId}/${req.designVersion.cacheVersion}/public/ww_page_data/${req.params.cacheRandom}/${req.params.pageId}/data.json`
-        const file = await s3.getSignedFileFromS3Websites(key)
-        return res
-            .status(200)
-            .set({
-                'Content-Type': file.headers['content-type'],
-                'Content-Length': file.headers['content-length'],
-                ETag: file.headers['etag'],
-                'last-modified': file.headers['last-modified'],
-                date: file.headers['date'],
-                'accept-ranges': file.headers['accept-ranges'],
-                'cache-control': 'no-cache',
-            })
-            .send(file.data)
-    } catch (err) /* istanbul ignore next */ {
-        return res.status(404).send()
-    }
-}
-
-/**
  * Get AWS file .
  * @param req Request
  * @param res Response
@@ -92,6 +64,7 @@ export const getDataFile = async (req: RequestWebsite, res: Response, next: Next
 
         let cacheControl = 'public, max-age=31536000'
         if (req.isPrivate) {
+            cacheControl = 'no-cache'
         }
 
         return res
