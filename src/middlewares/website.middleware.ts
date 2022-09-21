@@ -97,8 +97,8 @@ export const ensurePage = async (req: RequestWebsite, res: Response, next: NextF
             pathWithTrailing = pathWithTrailing + '/'
         }
         let pathWithoutTrailing = req.params.path
-        if (!pathWithoutTrailing.endsWith('/')) {
-            pathWithoutTrailing = pathWithoutTrailing + '/'
+        if (pathWithoutTrailing.endsWith('/')) {
+            pathWithoutTrailing = pathWithoutTrailing.slice(0, -1)
         }
 
         req.page = !req.params.path
