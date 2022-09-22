@@ -93,7 +93,10 @@ export const ensurePage = async (req: RequestWebsite, res: Response, next: NextF
         req.params.path = req.params.path || ''
 
         if (req.params.path !== '' && !req.params.path.endsWith('/')) {
-            return res.redirect(301, `/${req.params.path}/`)
+            let redirectUrl = req.originalUrl
+            if (req.originalUrl.indexOf('?') !== -1) redirectUrl = redirectUrl.replace('?', '/?')
+            else redirectUrl = `${redirectUrl}/`
+            return res.redirect(301, redirectUrl)
         }
 
         const pathWithoutTrailing = req.params.path !== '' ? req.params.path.slice(0, -1) : ''
