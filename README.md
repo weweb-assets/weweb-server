@@ -74,6 +74,7 @@ The storage location is configured using environment variables.
 | DB_NAME      | Yes      | -             | Database name                            |
 | DB_USERNAME  | Yes      | -             | User name to connect to the Database     |
 | DB_PASSWORD  | Yes      | -             | User password to connect to the Database |
+| DB_SCHEMA    | No       | public        | Schema to connect to the Database        |
 | DB_SSL       | No       | false         | Use SSL connection to database           |
 
 #### AWS S3 configuration (not required if a different storage is used) :

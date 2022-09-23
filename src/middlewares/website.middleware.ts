@@ -72,9 +72,9 @@ export const ensureRedirection = async (req: RequestWebsite, res: Response, next
                 if (defaultLang && defaultLang.isDefaultPath) {
                     path = `${defaultLang.lang}/${path}`
                 }
-                return res.redirect(parseInt(redirection.status), `/${path}`)
+                return res.set({ 'cache-control': 'no-cache' }).redirect(parseInt(redirection.status), `/${path}`)
             default:
-                return res.redirect(parseInt(redirection.status), redirection.urlTarget)
+                return res.set({ 'cache-control': 'no-cache' }).redirect(parseInt(redirection.status), redirection.urlTarget)
         }
     } catch (err) /* istanbul ignore next */ {
         return next(err)
@@ -96,7 +96,7 @@ export const ensurePage = async (req: RequestWebsite, res: Response, next: NextF
             let redirectUrl = req.originalUrl
             if (req.originalUrl.indexOf('?') !== -1) redirectUrl = redirectUrl.replace('?', '/?')
             else redirectUrl = `${redirectUrl}/`
-            return res.redirect(301, redirectUrl)
+            return res.set({ 'cache-control': 'no-cache' }).redirect(301, redirectUrl)
         }
 
         const pathWithoutTrailing = req.params.path !== '' ? req.params.path.slice(0, -1) : ''
@@ -207,7 +207,8 @@ export const ensureAuth = async (req: RequestWebsite, res: Response, next: NextF
                 ? `/${lang}/${page.paths[lang] || page.paths.default}`
                 : `${page.paths.default}`
         const queries = Object.keys(req.query).map(key => `${key}=${req.query[key]}`)
-        const redirectUrl = `${path}${queries.length ? `?${queries.join('&')}` : ''}`
+        let redirectUrl = `${path}${queries.length ? `?${queries.join('&')}` : ''}`
+        if (!redirectUrl.startsWith('/')) redirectUrl = `/${redirectUrl}`
 
         let isAuth = false
         switch (pluginSettings.pluginId) {

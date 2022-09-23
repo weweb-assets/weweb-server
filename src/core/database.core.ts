@@ -26,15 +26,16 @@ export default class PostgreSQL extends Sequelize {
      * @param {string} hostname
      * @memberof PostgreSQL
      */
-    constructor(dbname: string, username: string, password: string, hostname: string, port: number) {
+    constructor(dbname: string, username: string, password: string, hostname: string, port: number, schema: string, useSSL: boolean) {
         super(dbname, username, password, {
             host: hostname,
             dialect: 'postgres',
             protocol: 'postgres',
             logging: false,
             port: port || 5432,
+            schema,
             dialectOptions: {
-                ssl: !!process.env.DB_SSL ? { require: true, rejectUnauthorized: false } : false,
+                ssl: !!useSSL ? { require: true, rejectUnauthorized: false } : false,
             },
         })
     }
