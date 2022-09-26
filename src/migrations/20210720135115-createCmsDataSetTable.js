@@ -50,6 +50,14 @@ module.exports = {
                     type: Sequelize.INTEGER,
                     allowNull: true,
                 },
+                type: {
+                    type: Sequelize.STRING,
+                    allowNull: false,
+                    defaultValue: 'single',
+                    validate: {
+                        isIn: [['collection', 'single']],
+                    },
+                },
                 mode: {
                     type: Sequelize.STRING,
                     allowNull: false,
@@ -57,6 +65,16 @@ module.exports = {
                     validate: {
                         isIn: [['static', 'cached', 'dynamic']],
                     },
+                },
+                filter: {
+                    type: Sequelize.JSONB,
+                    allowNull: false,
+                    defaultValue: {},
+                },
+                sort: {
+                    type: Sequelize.JSONB,
+                    allowNull: false,
+                    defaultValue: [],
                 },
                 createdAt: {
                     type: Sequelize.DATE,

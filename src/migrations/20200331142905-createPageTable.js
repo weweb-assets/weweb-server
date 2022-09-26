@@ -23,15 +23,19 @@ module.exports = {
                         key: 'id',
                     },
                 },
+                pageId: {
+                    type: Sequelize.STRING,
+                    allowNull: false,
+                },
                 paths: {
                     type: Sequelize.JSONB,
                     allowNull: false,
                     defaultValue: {},
                 },
-                isPrivate: {
-                    type: Sequelize.BOOLEAN,
+                userGroups: {
+                    type: Sequelize.JSONB,
                     allowNull: false,
-                    defaultValue: false,
+                    defaultValue: [],
                 },
                 createdAt: {
                     type: Sequelize.DATE,

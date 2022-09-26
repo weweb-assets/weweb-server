@@ -16,6 +16,10 @@ module.exports = {
                     type: Sequelize.UUID,
                     allowNull: false,
                 },
+                designVersionId: {
+                    type: Sequelize.UUID,
+                    allowNull: false,
+                },
                 domain: {
                     type: Sequelize.STRING,
                     allowNull: true,
@@ -26,6 +30,10 @@ module.exports = {
                 },
                 homePageId: {
                     type: Sequelize.UUID,
+                    allowNull: true,
+                },
+                langs: {
+                    type: Sequelize.JSONB,
                     allowNull: true,
                 },
                 isActive: {
