@@ -1,5 +1,4 @@
 'use strict'
-import { utils } from '../services'
 
 module.exports = {
     up: (queryInterface, Sequelize) => {
@@ -11,7 +10,7 @@ module.exports = {
                 allowNull: false,
             },
             {
-                schema: utils.getDatabaseSchema(),
+                schema: process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public',
             }
         )
     },
@@ -25,7 +24,7 @@ module.exports = {
                 allowNull: false,
             },
             {
-                schema: utils.getDatabaseSchema(),
+                schema: process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public',
             }
         )
     },

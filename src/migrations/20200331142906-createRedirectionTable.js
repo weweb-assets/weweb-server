@@ -1,5 +1,4 @@
 'use strict'
-import { utils } from '../services'
 
 module.exports = {
     up: (queryInterface, Sequelize) => {
@@ -19,7 +18,7 @@ module.exports = {
                     references: {
                         model: {
                             tableName: 'designVersions',
-                            schema: utils.getDatabaseSchema(),
+                            schema: process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public',
                         },
                         key: 'id',
                     },
@@ -30,7 +29,7 @@ module.exports = {
                     references: {
                         model: {
                             tableName: 'pages',
-                            schema: utils.getDatabaseSchema(),
+                            schema: process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public',
                         },
                         key: 'id',
                     },
@@ -61,13 +60,13 @@ module.exports = {
                 },
             },
             {
-                schema: utils.getDatabaseSchema(),
+                schema: process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public',
             }
         )
     },
     down: (queryInterface, Sequelize) => {
         return queryInterface.dropTable('redirections', {
-            schema: utils.getDatabaseSchema(),
+            schema: process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public',
         })
     },
 }

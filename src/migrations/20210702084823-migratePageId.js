@@ -1,5 +1,4 @@
 'use strict'
-import { utils } from '../services'
 
 module.exports = {
     up: (queryInterface, Sequelize) => {
@@ -18,10 +17,10 @@ async function migrate(queryInterface, Sequelize) {
             allowNull: true,
         },
         {
-            schema: utils.getDatabaseSchema(),
+            schema: process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public',
         }
     )
-    const [pages] = await queryInterface.sequelize.query(`SELECT "id" FROM "${utils.getDatabaseSchema()}"."pages"`)
+    const [pages] = await queryInterface.sequelize.query(`SELECT "id" FROM "${process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public'}"."pages"`)
 
     for (const page of pages) {
         await queryInterface.bulkUpdate(
@@ -29,7 +28,7 @@ async function migrate(queryInterface, Sequelize) {
             { pageId: page.id },
             { id: page.id },
             {
-                schema: utils.getDatabaseSchema(),
+                schema: process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public',
             }
         )
     }
@@ -42,7 +41,7 @@ async function migrate(queryInterface, Sequelize) {
             allowNull: false,
         },
         {
-            schema: utils.getDatabaseSchema(),
+            schema: process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public',
         }
     )
 }

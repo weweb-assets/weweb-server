@@ -1,5 +1,4 @@
 'use strict'
-import { utils } from '../services'
 
 module.exports = {
     up: async (queryInterface, Sequelize) => {
@@ -13,17 +12,17 @@ module.exports = {
                     defaultValue: [],
                 },
                 {
-                    schema: utils.getDatabaseSchema(),
+                    schema: process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public',
                 }
             ),
             queryInterface.removeColumn('pages', 'isPrivate', {
-                schema: utils.getDatabaseSchema(),
+                schema: process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public',
             }),
         ])
     },
     down: (queryInterface, Sequelize) => {
         return queryInterface.removeColumn('pages', 'userGroups', {
-            schema: utils.getDatabaseSchema(),
+            schema: process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public',
         })
     },
 }

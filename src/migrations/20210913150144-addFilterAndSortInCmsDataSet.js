@@ -1,5 +1,4 @@
 'use strict'
-import { utils } from '../services'
 
 module.exports = {
     up: (queryInterface, Sequelize) => {
@@ -13,7 +12,7 @@ module.exports = {
                     defaultValue: {},
                 },
                 {
-                    schema: utils.getDatabaseSchema(),
+                    schema: process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public',
                 }
             ),
             queryInterface.addColumn(
@@ -25,7 +24,7 @@ module.exports = {
                     defaultValue: [],
                 },
                 {
-                    schema: utils.getDatabaseSchema(),
+                    schema: process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public',
                 }
             ),
         ])
@@ -34,10 +33,10 @@ module.exports = {
     down: (queryInterface, Sequelize) => {
         return Promise.all([
             queryInterface.removeColumn('cmsDataSets', 'filter', {
-                schema: utils.getDatabaseSchema(),
+                schema: process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public',
             }),
             queryInterface.removeColumn('cmsDataSets', 'sort', {
-                schema: utils.getDatabaseSchema(),
+                schema: process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public',
             }),
         ])
     },

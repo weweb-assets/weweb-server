@@ -84,13 +84,4 @@ export default class Utils {
         if (serverPath.endsWith('/')) serverPath = serverPath.slice(0, -1)
         return serverPath
     }
-
-    /**
-     * Get database schema.
-     * @returns {string}
-     * @memberof Utils
-     */
-    public getDatabaseSchema(): string {
-        return process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public'
-    }
 }

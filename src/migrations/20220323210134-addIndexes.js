@@ -1,5 +1,4 @@
 'use strict'
-import { utils } from '../services'
 
 module.exports = {
     up: async (queryInterface, Sequelize) => {
@@ -12,7 +11,7 @@ module.exports = {
                     using: 'BTREE',
                 },
                 {
-                    schema: utils.getDatabaseSchema(),
+                    schema: process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public',
                 }
             ),
             queryInterface.addIndex(
@@ -24,7 +23,7 @@ module.exports = {
                     where: { isActive: true },
                 },
                 {
-                    schema: utils.getDatabaseSchema(),
+                    schema: process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public',
                 }
             ),
             queryInterface.addIndex(
@@ -36,7 +35,7 @@ module.exports = {
                     where: { isActive: true },
                 },
                 {
-                    schema: utils.getDatabaseSchema(),
+                    schema: process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public',
                 }
             ),
             queryInterface.addIndex(
@@ -47,7 +46,7 @@ module.exports = {
                     using: 'BTREE',
                 },
                 {
-                    schema: utils.getDatabaseSchema(),
+                    schema: process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public',
                 }
             ),
             queryInterface.addIndex(
@@ -58,7 +57,7 @@ module.exports = {
                     using: 'BTREE',
                 },
                 {
-                    schema: utils.getDatabaseSchema(),
+                    schema: process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public',
                 }
             ),
             queryInterface.addIndex(
@@ -69,7 +68,7 @@ module.exports = {
                     using: 'BTREE',
                 },
                 {
-                    schema: utils.getDatabaseSchema(),
+                    schema: process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public',
                 }
             ),
             queryInterface.addIndex(
@@ -80,7 +79,7 @@ module.exports = {
                     using: 'BTREE',
                 },
                 {
-                    schema: utils.getDatabaseSchema(),
+                    schema: process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public',
                 }
             ),
             queryInterface.addIndex(
@@ -91,7 +90,7 @@ module.exports = {
                     using: 'GIN',
                 },
                 {
-                    schema: utils.getDatabaseSchema(),
+                    schema: process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public',
                 }
             ),
             queryInterface.addIndex(
@@ -102,7 +101,7 @@ module.exports = {
                     using: 'BTREE',
                 },
                 {
-                    schema: utils.getDatabaseSchema(),
+                    schema: process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public',
                 }
             ),
         ])
@@ -110,31 +109,31 @@ module.exports = {
     down: async (queryInterface, Sequelize) => {
         return Promise.all([
             queryInterface.removeIndex('designVersions', 'designVersions_designId_idx', {
-                schema: utils.getDatabaseSchema(),
+                schema: process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public',
             }),
             queryInterface.removeIndex('designVersions', 'designVersions_designId_active_idx', {
-                schema: utils.getDatabaseSchema(),
+                schema: process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public',
             }),
             queryInterface.removeIndex('designVersions', 'designVersions_domain_active_idx', {
-                schema: utils.getDatabaseSchema(),
+                schema: process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public',
             }),
             queryInterface.removeIndex('cmsDataSets', 'cmsDataSets_designVersionId_cmsDataSetId_idx', {
-                schema: utils.getDatabaseSchema(),
+                schema: process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public',
             }),
             queryInterface.removeIndex('pluginSettings', 'pluginSettings_designVersionId_idx', {
-                schema: utils.getDatabaseSchema(),
+                schema: process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public',
             }),
             queryInterface.removeIndex('pages', 'pages_designVersionId_idx', {
-                schema: utils.getDatabaseSchema(),
+                schema: process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public',
             }),
             queryInterface.removeIndex('pages', 'pages_designVersionId_pageId_idx', {
-                schema: utils.getDatabaseSchema(),
+                schema: process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public',
             }),
             queryInterface.removeIndex('pages', 'pages_paths_idx', {
-                schema: utils.getDatabaseSchema(),
+                schema: process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public',
             }),
             queryInterface.removeIndex('pages', 'redirections_designVersionId_urlSource_idx', {
-                schema: utils.getDatabaseSchema(),
+                schema: process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public',
             }),
         ])
     },
