@@ -13,6 +13,11 @@ export const createDesignVersion = async (req: Request, res: Response, next: Nex
         if (!utils.isDefined([req.params.designId, req.body.designVersionId, req.body.cacheVersion, req.body.homePageId]))
             return res.status(400).send({ success: false, code: 'BAD_PARAMS' })
 
+        if (!req.body.domain) {
+            const _designVersion = await db.models.designVersion.findOne({ where: { designId: req.params.designId } })
+            req.body.domain = _designVersion.domain
+        }
+
         const designVersion = await db.models.designVersion.create({
             designId: req.params.designId,
             designVersionId: req.body.designVersionId,
