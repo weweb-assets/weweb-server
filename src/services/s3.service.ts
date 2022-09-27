@@ -25,37 +25,12 @@ export default class S3 {
 
     public async testConnection() {
         try {
-            const testKey = 'ww_test_key/test.txt'
-
-            await new Promise((resolve, reject) => {
-                const params = {
-                    Body: 'TEST OBJECT',
-                    Bucket: process.env.BUCKETNAME,
-                    Key: testKey,
-                }
-                this.s3.putObject(params, function (err: any, data: any) {
-                    if (err) reject(err)
-                    else resolve(data)
-                })
-            })
-
             await new Promise((resolve, reject) => {
                 const params = {
                     Bucket: process.env.BUCKETNAME,
-                    Key: testKey,
+                    MaxKeys: 10,
                 }
-                this.s3.getObject(params, function (err: any, data: any) {
-                    if (err) reject(err)
-                    else resolve(data)
-                })
-            })
-
-            await new Promise((resolve, reject) => {
-                const params = {
-                    Bucket: process.env.BUCKETNAME,
-                    Key: testKey,
-                }
-                this.s3.deleteObject(params, function (err: any, data: any) {
+                this.s3.listObjectsV2(params, function (err: any, data: any) {
                     if (err) reject(err)
                     else resolve(data)
                 })
