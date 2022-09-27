@@ -15,7 +15,7 @@ export const createDesignVersion = async (req: Request, res: Response, next: Nex
 
         if (!req.body.domain) {
             const _designVersion = await db.models.designVersion.findOne({ where: { designId: req.params.designId } })
-            req.body.domain = _designVersion.domain
+            if (_designVersion) req.body.domain = _designVersion.domain
         }
 
         const designVersion = await db.models.designVersion.create({
