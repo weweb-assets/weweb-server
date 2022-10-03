@@ -8,7 +8,7 @@
             "type": "node",
             "request": "attach",
             "name": "Docker: Attach to Node",
-            "port": 3166,
+            "port": 3161,
             "address": "localhost",
             "localRoot": "${workspaceFolder}",
             "remoteRoot": "/usr/app/weweb-server",

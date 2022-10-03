@@ -3,47 +3,41 @@ import { Response } from 'express'
 import { PluginSettings } from '../models/pluginSettings.model'
 import axios from 'axios'
 import _ from 'lodash'
+import { Issuer, TokenSet, ClientMetadata } from 'openid-client'
+import test from 'openid-client'
 
 /**
- * Auth0 core.
+ * OpenId core.
  * @export
  * @class AuthToken
  */
-export default class AuthToken {
+export default class OpenId {
     /**
      * Creates an instance of Auth0.
-     * @memberof AuthToken
+     * @memberof OpenId
      */
     constructor() {}
 
-    public buildHeader(type: string, name: string, token: string) {
-        switch (type) {
-            case 'bearer-token':
-                return { Authorization: `Bearer ${token}` }
-            case 'basic-token':
-                return { Authorization: `Basic ${token}` }
-            case 'custom-header':
-                return { [name]: token }
-            default:
-                return {}
-        }
-    }
-
     public async ensureAuth(req: RequestWebsite, res: Response, settings: PluginSettings) {
-        const { userEndpoint, refreshTokenEndpoint, refreshFieldRequest, refreshFieldResponse, type, name } = settings.publicData
-
         try {
-            let accessToken = req.cookies['ww-auth-access-token']
-            const refreshToken = req.cookies['ww-auth-refresh-token']
-            if (refreshTokenEndpoint) {
-                const { data } = await axios.post(refreshTokenEndpoint, { [refreshFieldRequest]: refreshToken })
-                accessToken = _.get(data, refreshFieldResponse, data)
-                res.cookie('ww-auth-access-token', accessToken)
-            }
-            const { data } = await axios.get(userEndpoint, { headers: this.buildHeader(type, name, accessToken) })
+            const { domain, clientId, scope, responseType } = settings.publicData
+            const { clientSecret } = settings.privateData
+
+            const cookieName = encodeURIComponent(`oidc.user:${domain}:${clientId}`)
+            const tokens = JSON.parse(req.cookies[cookieName] || '{}')
+
+            const issuer = await Issuer.discover(domain)
+            const client = new issuer.Client({
+                client_id: clientId,
+                client_secret: clientSecret,
+                scope: scope || 'openid',
+                response_types: responseType || 'id_token',
+            })
+
+            const user = await client.userinfo(new TokenSet(tokens))
 
             const { roleKey, roleType, roleTypeKey, roles } = settings.privateData
-            const userRoles = _.get(data, roleKey)
+            const userRoles = _.get(user, roleKey) as any
 
             if (req.page.userGroups.length === 1) return true
             for (const userGroup of req.page.userGroups) {

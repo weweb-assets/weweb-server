@@ -90,17 +90,17 @@ export default class Website {
     public async testFiles() {
         if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY && process.env.BUCKETREGION) {
             log.info(`Using S3 as file Storage : FILES_PATH=${process.env.FILES_PATH}`)
-            return await s3.testConnection()
+            return { storage: 'S3', connected: await s3.testConnection() }
         } else {
             if (!process.env.FILES_PATH) {
                 log.error(`Missing FILES_PATH environment variable`)
-                return false
-            } else if (process.env.FILES_PATH.startsWith('./')) {
+                return { storage: 'NONE', connected: false }
+            } else if (process.env.FILES_PATH.startsWith('./') || process.env.FILES_PATH.startsWith('/')) {
                 log.info(`Using local file Storage : FILES_PATH=${process.env.FILES_PATH}`)
-                return true
+                return { storage: 'LOCAL', connected: true }
             } else {
                 log.info(`Using distant file Storage : FILES_PATH=${process.env.FILES_PATH}`)
-                return true
+                return { storage: 'DISTANT', connected: true }
             }
         }
     }
