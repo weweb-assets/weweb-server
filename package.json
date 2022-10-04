@@ -1,6 +1,6 @@
 {
     "name": "weweb-preview",
-    "version": "1.1.7",
+    "version": "1.1.8",
     "description": "Description",
     "main": "./dist/index.js",
     "scripts": {
@@ -27,6 +27,7 @@
         "fs-extra": "^10.1.0",
         "mime-types": "^2.1.35",
         "morgan": "^1.10.0",
+        "openid-client": "^5.1.9",
         "pg": "^8.5.1",
         "pino": "^8.5.0",
         "pino-pretty": "^9.1.0",
@@ -41,6 +42,7 @@
         "@types/debug": "^4.1.6",
         "@types/express": "^4.17.12",
         "@types/morgan": "^1.9.2",
+        "@types/openid-client": "^3.7.0",
         "@types/pino-pretty": "^4.7.5",
         "@types/sequelize": "^4.28.9",
         "nodemon": "^2.0.9",

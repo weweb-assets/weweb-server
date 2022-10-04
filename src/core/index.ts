@@ -9,6 +9,7 @@ import Auth0 from './auth0.core'
 import AuthToken from './authToken.core'
 import WeWebAuth from './wewebAuth.core'
 import SupabaseAuth from './supabaseAuth.core'
+import OpenId from './openId.core'
 
 /*=============================================m_ÔÔ_m=============================================\
     Initialize Core
@@ -29,8 +30,9 @@ const auth0 = new Auth0()
 const authToken = new AuthToken()
 const wewebAuth = new WeWebAuth()
 const supabaseAuth = new SupabaseAuth()
+const openId = new OpenId()
 
 /*=============================================m_ÔÔ_m=============================================\
     Export Core
 \================================================================================================*/
-export { app, db, server, website, auth0, authToken, wewebAuth, supabaseAuth }
+export { app, db, server, website, auth0, authToken, wewebAuth, supabaseAuth, openId }

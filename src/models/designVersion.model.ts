@@ -9,7 +9,6 @@ export interface DesignVersion {
     readonly id: string
     designId: string
     designVersionId: string
-    domain: string
     cacheVersion: number
     homePageId: string
     langs: Array<{
@@ -59,10 +58,6 @@ export const init = (sequelize: Sequelize): DesignVersionStatic => {
                 type: DataTypes.UUID,
                 allowNull: false,
             },
-            domain: {
-                type: DataTypes.STRING,
-                allowNull: true,
-            },
             cacheVersion: {
                 type: DataTypes.INTEGER,
                 allowNull: false,
@@ -85,7 +80,6 @@ export const init = (sequelize: Sequelize): DesignVersionStatic => {
             indexes: [
                 { name: 'designVersions_designId_idx', using: 'BTREE', fields: ['designId'] },
                 { name: 'designVersions_designId_active_idx', using: 'BTREE', fields: ['designId', 'isActive'], where: { isActive: true } },
-                { name: 'designVersions_domain_active_idx', using: 'BTREE', fields: ['domain', 'isActive'], where: { isActive: true } },
             ],
         }
     ) as DesignVersionStatic
@@ -128,7 +122,6 @@ export const init = (sequelize: Sequelize): DesignVersionStatic => {
             id: this.id,
             designId: this.designId,
             designVersionId: this.designVersionId,
-            domain: this.domain,
             cacheVersion: this.cacheVersion,
             homePageId: this.homePageId,
             isActive: this.isActive,

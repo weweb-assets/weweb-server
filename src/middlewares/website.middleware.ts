@@ -8,8 +8,31 @@ import {
     website as websiteCore,
     wewebAuth as wewebAuthCore,
     supabaseAuth as supabaseAuthCore,
+    openId as openIdCore,
 } from '../core'
 import { log } from '../services'
+
+const internals = {
+    getDesignVersionFromHost: async (host: string) => {
+        let designVersion
+        if (process.env.HOSTNAME_PREVIEW && host.indexOf(`.${process.env.HOSTNAME_PREVIEW}`) !== -1) {
+            const designId = host.replace(`.${process.env.HOSTNAME_PREVIEW}`, '').toLowerCase()
+            designVersion = await db.models.designVersion.findOne({ where: { designId, isActive: true } })
+        } else {
+            const designDomain = await db.models.designDomain.findOne({ where: { name: host } })
+            if (!designDomain) {
+                return null
+            }
+            designVersion = await db.models.designVersion.findOne({ where: { designId: designDomain.designId, isActive: true } })
+        }
+
+        if (!designVersion) {
+            return null
+        }
+
+        return designVersion
+    },
+}
 
 /**
  * Ensure website.
@@ -21,12 +44,13 @@ export const ensureWebsite = async (req: RequestWebsite, res: Response, next: Ne
     try {
         log.debug('middlewares:website:ensureWebsite')
 
+        const xForwardedHost = req.get('X-Forwarded-Host')
         const host = req.get('host')
-        if (process.env.HOSTNAME_PREVIEW && host.indexOf(`.${process.env.HOSTNAME_PREVIEW}`) !== -1) {
-            const designId = host.replace(`.${process.env.HOSTNAME_PREVIEW}`, '').toLowerCase()
-            req.designVersion = await db.models.designVersion.findOne({ where: { designId, isActive: true } })
-        } else {
-            req.designVersion = await db.models.designVersion.findOne({ where: { domain: host, isActive: true } })
+        if (xForwardedHost) {
+            req.designVersion = await internals.getDesignVersionFromHost(xForwardedHost)
+        }
+        if (!req.designVersion && host) {
+            req.designVersion = await internals.getDesignVersionFromHost(host)
         }
 
         if (!req.designVersion) {
@@ -160,7 +184,8 @@ const XANO_PLUGIN_ID = 'f5856798-485d-47be-b433-d43d771c64e1'
 const AUTH_TOKEN_PLUGIN_ID = '41448d5d-ae26-49bd-82b6-1c79f462e972'
 const WEWEB_AUTH_PLUGIN_ID = '6a64802c-52f8-4637-9932-580bf178aaa7'
 const SUPABASE_AUTH_PLUGIN_ID = '1fa0dd68-5069-436c-9a7d-3b54c340f1fa'
-const AUTH_PLUGINS_ID = [AUTH0_PLUGIN_ID, XANO_PLUGIN_ID, AUTH_TOKEN_PLUGIN_ID, WEWEB_AUTH_PLUGIN_ID, SUPABASE_AUTH_PLUGIN_ID]
+const OPENID_PLUGIN_ID = '01af5352-af71-4382-844b-2ec141ff243b'
+const AUTH_PLUGINS_ID = [AUTH0_PLUGIN_ID, XANO_PLUGIN_ID, AUTH_TOKEN_PLUGIN_ID, WEWEB_AUTH_PLUGIN_ID, SUPABASE_AUTH_PLUGIN_ID, OPENID_PLUGIN_ID]
 
 /**
  * Ensure auth.
@@ -226,6 +251,9 @@ export const ensureAuth = async (req: RequestWebsite, res: Response, next: NextF
                 break
             case SUPABASE_AUTH_PLUGIN_ID:
                 isAuth = await supabaseAuthCore.ensureAuth(req, res, pluginSettings)
+                break
+            case OPENID_PLUGIN_ID:
+                isAuth = await openIdCore.ensureAuth(req, res, pluginSettings)
                 break
         }
 

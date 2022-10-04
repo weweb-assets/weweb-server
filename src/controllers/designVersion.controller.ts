@@ -13,19 +13,23 @@ export const createDesignVersion = async (req: Request, res: Response, next: Nex
         if (!utils.isDefined([req.params.designId, req.body.designVersionId, req.body.cacheVersion, req.body.homePageId]))
             return res.status(400).send({ success: false, code: 'BAD_PARAMS' })
 
-        if (!req.body.domain) {
-            const _designVersion = await db.models.designVersion.findOne({ where: { designId: req.params.designId } })
-            if (_designVersion) req.body.domain = _designVersion.domain
-        }
-
         const designVersion = await db.models.designVersion.create({
             designId: req.params.designId,
             designVersionId: req.body.designVersionId,
             cacheVersion: req.body.cacheVersion,
-            domain: req.body.domain,
             homePageId: req.body.homePageId,
             langs: req.body.langs,
         })
+
+        const designDomain = await db.models.designDomain.findOne({ where: { designId: req.params.designId } })
+        if (designDomain) {
+            await designDomain.update({ name: req.body.domain || null })
+        } else {
+            await db.models.designDomain.create({
+                designId: req.params.designId,
+                name: req.body.domain || null,
+            })
+        }
 
         return res.status(200).send({ success: true, data: designVersion })
     } catch (err) /* istanbul ignore next */ {
@@ -70,6 +74,16 @@ export const deleteDesignVersions = async (req: Request, res: Response, next: Ne
     try {
         log.debug('controllers:designVersion:deleteDesignVersions')
         if (!utils.isDefined([req.params.designId])) return res.status(400).send({ success: false, code: 'BAD_PARAMS' })
+
+        const designDomainToDestroy = await db.models.designDomain.findOne({
+            where: {
+                designId: req.params.designId,
+            },
+        })
+
+        if (designDomainToDestroy) {
+            await designDomainToDestroy.destroy()
+        }
 
         const designVersionsToDestroy = await db.models.designVersion.findAll({
             where: {
@@ -198,11 +212,11 @@ export const getDomain = async (req: Request, res: Response, next: NextFunction)
 
         if (!req.params.designId) return res.status(400).send({ success: false, code: 'BAD_PARAMS' })
 
-        const designVersion = await db.models.designVersion.findOne({ where: { designId: req.params.designId } })
+        const designDomain = await db.models.designDomain.findOne({ where: { designId: req.params.designId } })
 
-        if (!designVersion) return res.status(404).send({ success: false, code: 'DESIGNVERSION_NOT_FOUND' })
+        if (!designDomain) return res.status(404).send({ success: false, code: 'DESIGN_NOT_FOUND' })
 
-        res.status(200).send({ domain: designVersion.domain })
+        res.status(200).send({ domain: designDomain.name })
     } catch (err) /* istanbul ignore next */ {
         return res.status(404).send()
     }
@@ -219,10 +233,15 @@ export const updateDomain = async (req: Request, res: Response, next: NextFuncti
 
         if (!req.params.designId || !req.body.domain) return res.status(400).send({ success: false, code: 'BAD_PARAMS' })
 
-        const designVersions = await db.models.designVersion.findAll({ where: { designId: req.params.designId } })
+        const designDomain = await db.models.designDomain.findOne({ where: { designId: req.params.designId } })
 
-        for (const designVersion of designVersions) {
-            await designVersion.update({ domain: req.body.domain })
+        if (designDomain) {
+            await designDomain.update({ name: req.body.domain })
+        } else {
+            await db.models.designDomain.create({
+                designId: req.params.designId,
+                name: req.body.domain || null,
+            })
         }
 
         res.status(200).send({ success: true })

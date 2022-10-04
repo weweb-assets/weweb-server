@@ -8,7 +8,7 @@ import { log } from '../services'
  * @param res Response
  */
 export const ping = async (req: Request, res: Response, next: NextFunction) => {
-    log.debug('controllers:utils:ping')
+    // log.debug('controllers:utils:ping')
     try {
         return res.status(200).send({ success: true })
     } catch (err) /* istanbul ignore next */ {
@@ -43,10 +43,16 @@ export const testConfig = async (req: Request, res: Response, next: NextFunction
 
     if (!req.body.publicKey || !req.body.privateKey) return res.status(400).send({ success: false, message: 'BAD_PARAMS' })
 
-    let filesOk, dataBaseOk, publicKeyOk, privateKeyOk
+    let filesOk,
+        filesStorage = 'NONE',
+        dataBaseOk,
+        publicKeyOk,
+        privateKeyOk
 
     try {
-        filesOk = await websiteCore.testFiles()
+        const { storage, connected } = await websiteCore.testFiles()
+        filesOk = connected
+        filesStorage = storage
     } catch (error) {
         log.error(error)
         filesOk = false
@@ -71,6 +77,8 @@ export const testConfig = async (req: Request, res: Response, next: NextFunction
         return res.status(200).send({
             running: true,
             files: filesOk,
+            filesStorage,
+            filesPath: process.env.FILES_PATH,
             database: dataBaseOk,
             publicKey: publicKeyOk,
             privateKey: privateKeyOk,
