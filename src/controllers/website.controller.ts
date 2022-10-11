@@ -1,7 +1,8 @@
 import { Response, NextFunction } from 'express'
-import { log, s3 } from '../services'
+import { log } from '../services'
 import { RequestWebsite } from 'ww-request'
 import { website as websiteCore } from '../core'
+const mime = require('mime-types')
 
 /**
  * Get file from AWS.
@@ -15,29 +16,24 @@ export const getFile = async (req: RequestWebsite, res: Response, next: NextFunc
         const lastPath = req.params.path.split('/').pop()
 
         if (lastPath.includes('.') && !lastPath.endsWith('.')) {
-            //No cache for core files
-            const noCacheFiles = ['robots.txt', 'sitemap.xml']
-            let cacheControl = 'public, max-age=31536000'
-            if (noCacheFiles.includes(lastPath)) {
-                cacheControl = 'no-cache'
-            }
-
             const key = `${websiteCore.getCachePath(req.designVersion.designId, req.designVersion.designVersionId, `${req.designVersion.cacheVersion}`)}/${
                 req.params.path
             }`
-            const file = await websiteCore.getFile(key)
 
-            return res
-                .status(200)
-                .set({
-                    'Content-Type': file['ContentType'],
-                    'Content-Length': file['ContentLength'],
-                    ETag: file['ETag'],
-                    'last-modified': file['LastModified'],
-                    'accept-ranges': file['AcceptRanges'],
-                    'cache-control': cacheControl,
-                })
-                .send(file.data)
+            const stream = await websiteCore.streamFile(key)
+
+            res.set({
+                'content-type': mime.lookup(key),
+                'cache-control': 'public, max-age=31536000',
+                'last-modified': new Date(req.designVersion.createdAt).toUTCString(),
+                date: new Date().toUTCString(),
+            })
+
+            stream.on('error', function (error: any) {
+                res.status(error.statusCode || 404).end(error.message || 'FILE_NOT_FOUND')
+            })
+
+            return stream.pipe(res)
         } else {
             return next()
         }
@@ -60,24 +56,26 @@ export const getDataFile = async (req: RequestWebsite, res: Response, next: Next
             req.designVersion.designVersionId,
             `${req.designVersion.cacheVersion}`
         )}/public/data/${req.params.pageId}.json`
-        const file = await websiteCore.getFile(key)
 
         let cacheControl = 'public, max-age=31536000'
         if (req.isPrivate) {
             cacheControl = 'no-cache'
         }
 
-        return res
-            .status(200)
-            .set({
-                'Content-Type': file['ContentType'],
-                'Content-Length': file['ContentLength'],
-                ETag: file['ETag'],
-                'last-modified': file['LastModified'],
-                'accept-ranges': file['AcceptRanges'],
-                'cache-control': cacheControl,
-            })
-            .send(file.data)
+        const stream = await websiteCore.streamFile(key)
+
+        res.set({
+            'content-type': mime.lookup(key),
+            'cache-control': cacheControl,
+            'last-modified': new Date(req.designVersion.createdAt).toUTCString(),
+            date: new Date().toUTCString(),
+        })
+
+        stream.on('error', function (error: any) {
+            res.status(error.statusCode || 404).end(error.message || 'FILE_NOT_FOUND')
+        })
+
+        return stream.pipe(res)
     } catch (err) /* istanbul ignore next */ {
         return res.status(404).send()
     }
@@ -92,6 +90,7 @@ export const getIndex = async (req: RequestWebsite, res: Response, next: NextFun
     try {
         log.debug('controllers:website:getIndex')
 
+        //Fetch new version
         const path =
             req.designVersion.homePageId === req.page.pageId
                 ? 'index.html'
@@ -102,25 +101,26 @@ export const getIndex = async (req: RequestWebsite, res: Response, next: NextFun
             req.designVersion.designVersionId,
             `${req.designVersion.cacheVersion}`
         )}/${lang}${path}`
-        const file = await websiteCore.getFile(key)
+
+        const stream = await websiteCore.streamFile(key)
 
         if (process.env.HOSTNAME_PREVIEW && req.get('host').indexOf(`.${process.env.HOSTNAME_PREVIEW}`) !== -1) {
-            file.data = file.data.toString('utf-8')
-            file.data = file.data.replace(/<head><base\s.*?\/>/gi, '<head>')
-            file.data = file.data.replace('<head>', '<head><meta name="robots" content="noindex, nofollow">')
-        }
-
-        return res
-            .status(200)
-            .set({
-                'Content-Type': file['ContentType'],
-                'Content-Length': file['ContentLength'],
-                ETag: file['ETag'],
-                'last-modified': file['LastModified'],
-                'accept-ranges': file['AcceptRanges'],
-                'cache-control': 'no-cache',
+            res.set({
+                'X-Robots-Tag': 'noindex',
             })
-            .send(file.data)
+        }
+        res.set({
+            'content-type': mime.lookup(key),
+            'cache-control': 'no-cache',
+            'last-modified': new Date(req.designVersion.createdAt).toUTCString(),
+            date: new Date().toUTCString(),
+        })
+
+        stream.on('error', function (error: any) {
+            return websiteCore.redirectTo404(res, req.designVersion.id)
+        })
+
+        return stream.pipe(res)
     } catch (err) /* istanbul ignore next */ {
         return websiteCore.redirectTo404(res, req.designVersion.id)
     }

@@ -1,4 +1,5 @@
 import { log } from '../services'
+import { Response } from 'express'
 const aws = require('aws-sdk')
 
 /**
@@ -69,5 +70,21 @@ export default class S3 {
                 resolve(data)
             })
         )
+    }
+
+    public streamFileFromS3Websites(key: string): Promise<any> {
+        log.debug('services:s3:streamFileFromS3Websites', key)
+
+        if (process.env.BUCKETURL && key.indexOf(process.env.BUCKETURL) === 0) key = key.replace(process.env.BUCKETURL, '')
+        if (key.indexOf('/') === 0) key = key.replace('/', '')
+
+        const getParams = {
+            Bucket: process.env.BUCKETNAME,
+            Key: key,
+        }
+
+        const s3Object = this.s3.getObject(getParams)
+
+        return s3Object.createReadStream()
     }
 }

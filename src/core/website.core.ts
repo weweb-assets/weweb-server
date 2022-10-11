@@ -85,6 +85,26 @@ export default class Website {
     }
 
     /**
+     * Get file from S3 or file storage
+     * @memberof Server
+     */
+    public async streamFile(key: string) {
+        //From S3
+        if (s3.isConnected()) {
+            return s3.streamFileFromS3Websites(key)
+        }
+        //From local storage
+        else if (key.startsWith('/') || key.startsWith('./')) {
+            return fs.createReadStream(key)
+        }
+        //From external storage
+        else {
+            const response = await axios.get(key, { responseType: 'stream' })
+            return response.data
+        }
+    }
+
+    /**
      * Test file storage
      */
     public async testFiles() {
