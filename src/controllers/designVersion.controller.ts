@@ -31,7 +31,7 @@ export const createDesignVersion = async (req: Request, res: Response, next: Nex
             })
         }
 
-        return res.status(200).send({ success: true, data: designVersion })
+        return res.status(200).set({ 'cache-control': 'no-cache' }).send({ success: true, data: designVersion })
     } catch (err) /* istanbul ignore next */ {
         return next(err)
     }
@@ -59,7 +59,7 @@ export const setCacheVersionActive = async (req: Request, res: Response, next: N
 
         await db.models.designVersion.update({ isActive: true }, { where: { id: designVersion.id } })
 
-        return res.status(200).send({ success: true })
+        return res.status(200).set({ 'cache-control': 'no-cache' }).send({ success: true })
     } catch (err) /* istanbul ignore next */ {
         return next(err)
     }
@@ -95,7 +95,7 @@ export const deleteDesignVersions = async (req: Request, res: Response, next: Ne
             await designVersionToDestroy.destroy()
         }
 
-        return res.status(200).send({ success: true })
+        return res.status(200).set({ 'cache-control': 'no-cache' }).send({ success: true })
     } catch (err) /* istanbul ignore next */ {
         return next(err)
     }
@@ -157,7 +157,7 @@ export const getAllRoutes = async (req: Request, res: Response, next: NextFuncti
 
         allRoutesHtml += '</body></html>'
 
-        return res.status(200).send(allRoutesHtml)
+        return res.status(200).set({ 'cache-control': 'no-cache' }).send(allRoutesHtml)
     } catch (err) /* istanbul ignore next */ {
         return next(err)
     }
@@ -195,7 +195,7 @@ export const getCacheVersions = async (req: Request, res: Response, next: NextFu
             })
         }
 
-        res.status(200).send({ cacheVersions: cacheVersions })
+        res.status(200).set({ 'cache-control': 'no-cache' }).send({ cacheVersions: cacheVersions })
     } catch (err) /* istanbul ignore next */ {
         return res.status(404).send()
     }
@@ -216,7 +216,7 @@ export const getDomain = async (req: Request, res: Response, next: NextFunction)
 
         if (!designDomain) return res.status(404).send({ success: false, code: 'DESIGN_NOT_FOUND' })
 
-        res.status(200).send({ domain: designDomain.name })
+        res.status(200).set({ 'cache-control': 'no-cache' }).send({ domain: designDomain.name })
     } catch (err) /* istanbul ignore next */ {
         return res.status(404).send()
     }
@@ -244,7 +244,7 @@ export const updateDomain = async (req: Request, res: Response, next: NextFuncti
             })
         }
 
-        res.status(200).send({ success: true })
+        res.status(200).set({ 'cache-control': 'no-cache' }).send({ success: true })
     } catch (err) /* istanbul ignore next */ {
         return res.status(404).send()
     }

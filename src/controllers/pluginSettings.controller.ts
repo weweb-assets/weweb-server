@@ -23,7 +23,7 @@ export const createPluginSettings = async (req: Request, res: Response, next: Ne
             privateData: req.body.privateData,
         })
 
-        return res.status(200).send({ success: true, data: pluginSettings })
+        return res.status(200).set({ 'cache-control': 'no-cache' }).send({ success: true, data: pluginSettings })
     } catch (err) /* istanbul ignore next */ {
         return next(err)
     }

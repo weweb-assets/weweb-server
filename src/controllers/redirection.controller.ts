@@ -24,7 +24,7 @@ export const createRedirection = async (req: Request, res: Response, next: NextF
             status: req.body.status,
         })
 
-        return res.status(200).send({ success: true, data: redirection })
+        return res.status(200).set({ 'cache-control': 'no-cache' }).send({ success: true, data: redirection })
     } catch (err) /* istanbul ignore next */ {
         return next(err)
     }

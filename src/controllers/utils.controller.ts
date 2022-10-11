@@ -10,7 +10,7 @@ import { log } from '../services'
 export const ping = async (req: Request, res: Response, next: NextFunction) => {
     // log.debug('controllers:utils:ping')
     try {
-        return res.status(200).send({ success: true })
+        return res.status(200).set({ 'cache-control': 'no-cache' }).send({ success: true })
     } catch (err) /* istanbul ignore next */ {
         return next(err)
     }
@@ -27,7 +27,9 @@ export const version = async (req: Request, res: Response, next: NextFunction) =
 
         const version = process.env.npm_package_version.split('.')
 
-        res.status(200).send({ major: parseInt(version[0]), minor: parseInt(version[1]), patch: parseInt(version[2]) })
+        res.status(200)
+            .set({ 'cache-control': 'no-cache' })
+            .send({ major: parseInt(version[0]), minor: parseInt(version[1]), patch: parseInt(version[2]) })
     } catch (err) /* istanbul ignore next */ {
         return res.status(404).send()
     }
@@ -74,7 +76,7 @@ export const testConfig = async (req: Request, res: Response, next: NextFunction
         if (privateKeyOk) log.debug('PRIVATE_KEY is ok')
         else log.error('Missing or wrong PRIVATE_KEY environment variable')
 
-        return res.status(200).send({
+        return res.status(200).set({ 'cache-control': 'no-cache' }).send({
             running: true,
             files: filesOk,
             filesStorage,

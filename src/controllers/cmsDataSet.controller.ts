@@ -33,7 +33,7 @@ export const createCmsDataSet = async (req: Request, res: Response, next: NextFu
             sort: req.body.sort,
         })
 
-        return res.status(200).send({ success: true, data: cmsDataSet })
+        return res.status(200).set({ 'cache-control': 'no-cache' }).send({ success: true, data: cmsDataSet })
     } catch (err) /* istanbul ignore next */ {
         return next(err)
     }
