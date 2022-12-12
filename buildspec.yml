@@ -1,0 +1,14 @@
+version: 0.2
+
+artifacts:
+    files:
+        - '**/*'
+
+phases:
+    install:
+        runtime-versions:
+            nodejs: 14
+        commands:
+            - n 16
+            - npm install
+            - npm run build
