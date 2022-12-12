@@ -30,7 +30,9 @@ async function migrate(queryInterface, Sequelize) {
         }
     }
 
-    await queryInterface.bulkInsert({ tableName: 'designDomains', schema: process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public' }, newDomains, {})
+    if(newDomains.length) {
+        await queryInterface.bulkInsert({ tableName: 'designDomains', schema: process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public' }, newDomains, {})
+    }
 
     queryInterface.removeColumn({ tableName: 'designVersions', schema: process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public' }, 'domain')
 }
