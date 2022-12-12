@@ -2,37 +2,38 @@ import { BuildOptions, DataTypes, Model, Sequelize } from 'sequelize'
 
 /**
  * @export
- * @interface DesignDomain
+ * @interface Design
  */
-export interface DesignDomain {
+export interface Design {
     readonly id: string
     designId: string
     name: string
+    stagingName: string
     readonly createdAt: Date
     readonly updatedAt: Date
 }
 
 /**
  * @export
- * @interface DesignDomainModel
- * @extends {DesignDomain}
+ * @interface DesignModel
+ * @extends {Design}
  * @extends {Model}
  */
-export interface DesignDomainModel extends DesignDomain, Model {
+export interface DesignModel extends Design, Model {
     getInfo(): any
 }
 
-export type DesignDomainStatic = typeof Model & {
-    new (values?: object, options?: BuildOptions): DesignDomainModel
+export type DesignStatic = typeof Model & {
+    new (values?: object, options?: BuildOptions): DesignModel
     associate(_models: [Model]): void
 }
 
-export const init = (sequelize: Sequelize): DesignDomainStatic => {
+export const init = (sequelize: Sequelize): DesignStatic => {
     /*=============================================m_ÔÔ_m=============================================\
         Model definition
     \================================================================================================*/
     const model = sequelize.define(
-        'designDomain',
+        'design',
         {
             id: {
                 type: DataTypes.UUID,
@@ -49,23 +50,28 @@ export const init = (sequelize: Sequelize): DesignDomainStatic => {
                 type: DataTypes.STRING,
                 allowNull: true,
             },
+            stagingName: {
+                type: DataTypes.STRING,
+                allowNull: true,
+            },
         },
         {
             indexes: [
-                { name: 'designDomains_designId_idx', using: 'BTREE', fields: ['designId'] },
-                { name: 'designDomains_name_idx', using: 'BTREE', fields: ['name'] },
+                { name: 'designs_designId_idx', using: 'BTREE', fields: ['designId'] },
+                { name: 'designs_name_idx', using: 'BTREE', fields: ['name'] },
             ],
         }
-    ) as DesignDomainStatic
+    ) as DesignStatic
 
     /*=============================================m_ÔÔ_m=============================================\
         Instance methods
     \================================================================================================*/
-    model.prototype.getInfo = function (): DesignDomain {
+    model.prototype.getInfo = function (): Design {
         return {
             id: this.id,
             designId: this.designId,
             name: this.name,
+            stagingName: this.stagingName,
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
         }

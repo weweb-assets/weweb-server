@@ -57,7 +57,7 @@ export default class Logger {
      * @memberof Logger
      */
     public printServerInfo() {
-        if (process.env.NODE_ENV === 'test') return
+        if (process.env.NODE_ENV === 'test' || process.env.HIDE_VERSION) return
         const infoTable = new CLITable({
             colWidths: [20, 50],
             chars: { mid: '', 'left-mid': '', 'mid-mid': '', 'right-mid': '' },

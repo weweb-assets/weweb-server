@@ -1,6 +1,8 @@
 import { Model, ModelCtor, Sequelize } from 'sequelize'
 import * as models from '../models'
 import { log } from '../services'
+import fs from 'fs'
+import { db } from '.'
 
 /**
  * @interface ModelsList
@@ -77,6 +79,8 @@ export default class PostgreSQL extends Sequelize {
             return log.error(err)
         }
 
+        this.importConfig()
+
         // try {
         //     /* istanbul ignore if */
         //     if (process.env.NODE_ENV === 'production') return
@@ -84,5 +88,42 @@ export default class PostgreSQL extends Sequelize {
         // } catch (err) /* istanbul ignore next */ {
         //     return log.error(err)
         // }
+    }
+
+    /**
+     * Import config.
+     * @memberof PostgreSQL
+     */
+    public async importConfig() {
+        if (!fs.existsSync('./weweb-server.config.json')) return
+
+        const config = JSON.parse(fs.readFileSync('./weweb-server.config.json', 'utf8'))
+        const pagesMap = {} as any
+
+        const designVersion = await db.models.designVersion.create({ ...config, id: undefined, activeProd: false, activeStaging: false })
+
+        const [design] = await db.models.design.findOrCreate({
+            where: { designId: config.design.id },
+            defaults: { designId: config.design.id },
+        })
+        await design.update({ name: config.design.name || design.name, stagingName: config.design.stagingName || design.stagingName })
+
+        for (const cmsDataSet of config.cmsDataSets) {
+            await db.models.cmsDataSet.create({ ...cmsDataSet, designVersionId: designVersion.id, id: undefined })
+        }
+        for (const page of config.pages) {
+            const { id } = await db.models.page.create({ ...page, designVersionId: designVersion.id, id: undefined })
+            pagesMap[page.id] = id
+        }
+        for (const pluginSetting of config.pluginSettings) {
+            await db.models.pluginSettings.create({ ...pluginSetting, designVersionId: designVersion.id, id: undefined })
+        }
+        for (const redirection of config.redirections) {
+            await db.models.redirection.create({ ...redirection, designVersionId: designVersion.id, pageId: pagesMap[redirection.pageId], id: undefined })
+        }
+
+        await db.models.designVersion.update({ activeProd: false }, { where: { designId: config.designId, activeProd: true } })
+
+        await designVersion.update({ activeProd: true })
     }
 }

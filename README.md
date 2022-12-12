@@ -39,15 +39,16 @@ The storage location is configured using environment variables.
 
 #### Main variables :
 
-| Varible name | Required | Default | Values                                   | Description                                                                                                                |
-| ------------ | -------- | ------- | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| NODE_ENV     | Yes      | -       | production                               | Must be set to production                                                                                                  |
-| FILES_PATH   | Yes      | -       | -                                        | Path of a frontend project's files in your storage. [More information](#files_path-)                                       |
-| PUBLIC_KEY   | Yes      | -       | -                                        | Can be found in WeWeb Dashboard > Workspace > Self-Hosting                                                                 |
-| PRIVATE_KEY  | Yes      | -       | -                                        | Can be found in WeWeb Dashboard > Workspace > Self-Hosting                                                                 |
-| PORT         | No       | 80      | -                                        | Port where `weweb-server` should run                                                                                       |
-| SERVER_PATH  | No       | -       | -                                        | Sub path for your server url. Not required if your server url is an IP or a domain name. [More information](#server_path-) |
-| WW_LOG_LEVEL | No       | trace   | _fatal, error, warn, info, debug, trace_ | Logs `weweb-server` should display                                                                                         |
+| Varible name | Required | Default | Values                                   | Description                                                                                                                                                          |
+| ------------ | -------- | ------- | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| NODE_ENV     | Yes      | -       | production                               | Must be set to production                                                                                                                                            |
+| FILES_PATH   | Yes      | -       | -                                        | Path of a frontend project's files in your storage. [More information](#files_path-)                                                                                 |
+| PUBLIC_KEY   | Yes      | -       | -                                        | Can be found in WeWeb Dashboard > Workspace > Self-Hosting                                                                                                           |
+| PRIVATE_KEY  | Yes      | -       | -                                        | Can be found in WeWeb Dashboard > Workspace > Self-Hosting                                                                                                           |
+| PORT         | No       | 80      | -                                        | Port where `weweb-server` should run                                                                                                                                 |
+| SERVER_PATH  | No       | -       | -                                        | Sub path for your server url. Not required if your server url is an IP or a domain name. [More information](#server_path-)                                           |
+| WW_LOG_LEVEL | No       | trace   | _fatal, error, warn, info, debug, trace_ | Logs `weweb-server` should display                                                                                                                                   |
+| HIDE_VERSION | No       | -       | false, true                              | Hide server version from API calls and logs. Warning : This will prevent you to use the Dashboard interface with your server, and force you to use weweb-server API. |
 
 > #### FILES_PATH :
 >

@@ -1,6 +1,28 @@
 import { Request, Response, NextFunction } from 'express'
 import { website as websiteCore, db } from '../core'
 import { utils, log } from '../services'
+import { Op } from 'sequelize'
+const wwmt = require('weweb-microservice-token')
+
+/**
+ * Get design versions.
+ * @param req Request
+ * @param res Response
+ */
+export const getDesignVersions = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        log.debug('controllers:designVersion:getDesignVersions')
+        if (!utils.isDefined([req.params.designId])) return res.status(400).send({ success: false, code: 'BAD_PARAMS' })
+
+        const designVersions = await db.models.designVersion.findAll({
+            where: { designId: req.params.designId },
+        })
+
+        return res.status(200).set({ 'cache-control': 'no-cache' }).send({ success: true, data: designVersions })
+    } catch (err) /* istanbul ignore next */ {
+        return next(err)
+    }
+}
 
 /**
  * Create design version.
@@ -21,11 +43,11 @@ export const createDesignVersion = async (req: Request, res: Response, next: Nex
             langs: req.body.langs,
         })
 
-        const designDomain = await db.models.designDomain.findOne({ where: { designId: req.params.designId } })
-        if (designDomain) {
-            await designDomain.update({ name: req.body.domain || null })
+        const design = await db.models.design.findOne({ where: { designId: req.params.designId } })
+        if (design) {
+            await design.update({ name: req.body.domain || null })
         } else {
-            await db.models.designDomain.create({
+            await db.models.design.create({
                 designId: req.params.designId,
                 name: req.body.domain || null,
             })
@@ -55,9 +77,82 @@ export const setCacheVersionActive = async (req: Request, res: Response, next: N
         })
         if (!designVersion) return res.status(404).send({ success: false, code: 'NOT_FOUND' })
 
-        await db.models.designVersion.update({ isActive: false }, { where: { designId: req.params.designId, isActive: true } })
+        if (req.body.env === 'staging') {
+            // Set target version to activeStaging: true
+            await db.models.designVersion.update({ activeStaging: false }, { where: { designId: req.params.designId, activeStaging: true } })
+            await db.models.designVersion.update({ activeStaging: true }, { where: { id: designVersion.id } })
+        } else {
+            // Set target version to activeStaging: true and activeProd: true
+            await db.models.designVersion.update(
+                { activeProd: false, activeStaging: false },
+                { where: { designId: req.params.designId, [Op.or]: [{ activeProd: true }, { activeStaging: true }] } }
+            )
+            await db.models.designVersion.update({ activeProd: true, activeStaging: true, activeBackup: true }, { where: { id: designVersion.id } })
+        }
 
-        await db.models.designVersion.update({ isActive: true }, { where: { id: designVersion.id } })
+        await websiteCore.cleanBackups(req.params.designId)
+
+        return res.status(200).set({ 'cache-control': 'no-cache' }).send({ success: true })
+    } catch (err) /* istanbul ignore next */ {
+        return next(err)
+    }
+}
+
+/**
+ * Release version.
+ * @param req Request
+ * @param res Response
+ */
+export const release = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        log.debug('controllers:designVersion:release')
+        if (!utils.isDefined([req.params.designId])) return res.status(400).send({ success: false, code: 'BAD_PARAMS' })
+
+        const designVersion = await db.models.designVersion.findOne({
+            where: {
+                designId: req.params.designId,
+                ...(req.body.cacheVersion ? { cacheVersion: req.body.cacheVersion } : { activeStaging: true }),
+            },
+        })
+        if (!designVersion) return res.status(404).send({ success: false, code: 'NOT_FOUND' })
+        if (designVersion.activeProd) return res.status(200).send({ success: true })
+
+        await db.models.designVersion.update({ activeProd: false }, { where: { designId: req.params.designId, activeProd: true } })
+        await designVersion.update({ activeProd: true, activeBackup: true }, { where: { id: designVersion.id } })
+
+        await websiteCore.cleanBackups(req.params.designId)
+
+        return res.status(200).set({ 'cache-control': 'no-cache' }).send({ success: true })
+    } catch (err) /* istanbul ignore next */ {
+        return next(err)
+    }
+}
+
+/**
+ * Set checkpoint.
+ * @param req Request
+ * @param res Response
+ */
+export const checkpoint = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        log.debug('controllers:designVersion:checkpoint')
+        if (!utils.isDefined([req.params.designId, req.params.cacheVersion])) return res.status(400).send({ success: false, code: 'BAD_PARAMS' })
+
+        const designVersion = await db.models.designVersion.findOne({
+            where: {
+                designId: req.params.designId,
+                cacheVersion: req.params.cacheVersion,
+            },
+        })
+        if (!designVersion) return res.status(404).send({ success: false, code: 'NOT_FOUND' })
+
+        const { body: design } = await wwmt.get(`${process.env.WEWEB_BACK_URL}/v1/microservice/designs/${req.params.designId}`)
+
+        const maxCheckpoints = design.pricingPlan.features.checkpoints || 0
+        const nbCheckpoints = await db.models.designVersion.count({ where: { designId: req.params.designId, activeCheckpoint: true } })
+        if (nbCheckpoints + (!designVersion.activeCheckpoint ? 1 : -1) > maxCheckpoints) return res.status(402).send({ code: 'CHECKPOINTS_LIMIT' })
+
+        await designVersion.update({ activeCheckpoint: !designVersion.activeCheckpoint })
 
         return res.status(200).set({ 'cache-control': 'no-cache' }).send({ success: true })
     } catch (err) /* istanbul ignore next */ {
@@ -75,15 +170,13 @@ export const deleteDesignVersions = async (req: Request, res: Response, next: Ne
         log.debug('controllers:designVersion:deleteDesignVersions')
         if (!utils.isDefined([req.params.designId])) return res.status(400).send({ success: false, code: 'BAD_PARAMS' })
 
-        const designDomainToDestroy = await db.models.designDomain.findOne({
+        const designToDestroy = await db.models.design.findOne({
             where: {
                 designId: req.params.designId,
             },
         })
 
-        if (designDomainToDestroy) {
-            await designDomainToDestroy.destroy()
-        }
+        if (designToDestroy) await designToDestroy.destroy()
 
         const designVersionsToDestroy = await db.models.designVersion.findAll({
             where: {
@@ -114,7 +207,7 @@ export const getAllRoutes = async (req: Request, res: Response, next: NextFuncti
         const designVersion = await db.models.designVersion.findOne({
             where: {
                 designId: req.params.designId,
-                isActive: true,
+                activeProd: true,
             },
         })
 
@@ -174,7 +267,7 @@ export const getCacheVersions = async (req: Request, res: Response, next: NextFu
 
         if (!req.params.designId) return res.status(400).send({ success: false, code: 'BAD_PARAMS' })
 
-        const designVersions = await db.models.designVersion.findAll({ where: { designId: req.params.designId } })
+        const designVersions = await db.models.designVersion.findAll({ where: { designId: req.params.designId }, limit: 10, order: [['createdAt', 'DESC']] })
 
         const cacheVersions = []
         for (const designVersion of designVersions) {
@@ -189,7 +282,8 @@ export const getCacheVersions = async (req: Request, res: Response, next: NextFu
 
             cacheVersions.push({
                 cacheVersion: designVersion.cacheVersion,
-                isActive: designVersion.isActive,
+                activeProd: designVersion.activeProd,
+                activeStaging: designVersion.activeStaging,
                 filesOk,
                 createdAt: designVersion.createdAt,
             })
@@ -212,11 +306,11 @@ export const getDomain = async (req: Request, res: Response, next: NextFunction)
 
         if (!req.params.designId) return res.status(400).send({ success: false, code: 'BAD_PARAMS' })
 
-        const designDomain = await db.models.designDomain.findOne({ where: { designId: req.params.designId } })
+        const design = await db.models.design.findOne({ where: { designId: req.params.designId } })
 
-        if (!designDomain) return res.status(404).send({ success: false, code: 'DESIGN_NOT_FOUND' })
+        if (!design) return res.status(404).send({ success: false, code: 'DESIGN_NOT_FOUND' })
 
-        res.status(200).set({ 'cache-control': 'no-cache' }).send({ domain: designDomain.name })
+        return res.status(200).set({ 'cache-control': 'no-cache' }).send({ domain: design.name, stagingDomain: design.stagingName })
     } catch (err) /* istanbul ignore next */ {
         return res.status(404).send()
     }
@@ -231,21 +325,94 @@ export const updateDomain = async (req: Request, res: Response, next: NextFuncti
     try {
         log.debug('controllers:designVersion:updateDomain')
 
-        if (!req.params.designId || !req.body.domain) return res.status(400).send({ success: false, code: 'BAD_PARAMS' })
+        if (!req.params.designId) return res.status(400).send({ success: false, code: 'BAD_PARAMS' })
 
-        const designDomain = await db.models.designDomain.findOne({ where: { designId: req.params.designId } })
+        const design = await db.models.design.findOne({ where: { designId: req.params.designId } })
 
-        if (designDomain) {
-            await designDomain.update({ name: req.body.domain })
+        if (design) {
+            await design.update({ name: req.body.domain || null, stagingName: req.body.stagingDomain || null })
         } else {
-            await db.models.designDomain.create({
+            await db.models.design.create({
                 designId: req.params.designId,
                 name: req.body.domain || null,
+                stagingName: req.body.stagingDomain || null,
             })
         }
 
         res.status(200).set({ 'cache-control': 'no-cache' }).send({ success: true })
     } catch (err) /* istanbul ignore next */ {
         return res.status(404).send()
+    }
+}
+
+/**
+ * Get config.
+ * @param req Request
+ * @param res Response
+ */
+export const getConfig = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        log.debug('controllers:designVersion:getConfig')
+
+        if (!utils.isDefined([req.params.projectId, req.params.version])) return res.status(400).send()
+
+        const designVersion = await db.models.designVersion.findOne({
+            where: { designId: req.params.projectId, cacheVersion: req.params.version },
+            include: [
+                { model: db.models.page, separate: true },
+                { model: db.models.pluginSettings, separate: true },
+                { model: db.models.redirection, separate: true },
+                { model: db.models.cmsDataSet, separate: true },
+            ],
+        })
+        if (!designVersion) return res.status(404).send()
+
+        const design = await db.models.design.findOne({
+            where: { designId: req.params.projectId },
+            raw: true,
+        })
+        if (!design) return res.status(404).send()
+
+        return res
+            .status(200)
+            .set({ 'cache-control': 'no-cache' })
+            .send({ ...designVersion.toJSON(), design })
+    } catch (err) /* istanbul ignore next */ {
+        return next(err)
+    }
+}
+
+/**
+ * Set version as active.
+ * @param req Request
+ * @param res Response
+ */
+export const publicSetVersionActive = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        log.debug('controllers:designVersion:publicSetVersionActive')
+
+        if (!utils.isDefined([req.params.projectId, req.params.version])) return res.status(400).send()
+
+        const designVersion = await db.models.designVersion.findOne({ where: { designId: req.params.projectId, cacheVersion: req.params.version } })
+        if (!designVersion) return res.status(404).send()
+
+        try {
+            const key = `${websiteCore.getCachePath(designVersion.designId, designVersion.designVersionId, `${designVersion.cacheVersion}`)}/index.html`
+            if (!(await websiteCore.getFile(key))) return res.status(404).send({ success: false, message: 'FILES_NOT_FOUND' })
+        } catch {
+            return res.status(404).send({ success: false, message: 'FILES_NOT_FOUND' })
+        }
+
+        if (req.body.env === 'staging') {
+            await db.models.designVersion.update({ activeStaging: false }, { where: { designId: req.params.projectId, activeStaging: true } })
+            await designVersion.update({ activeStaging: true })
+        } else {
+            await db.models.designVersion.update({ activeProd: false }, { where: { designId: req.params.projectId, activeProd: true } })
+            await designVersion.update({ activeProd: true })
+        }
+
+        return res.status(200).set({ 'cache-control': 'no-cache' }).send({ success: true })
+    } catch (err) /* istanbul ignore next */ {
+        return next(err)
     }
 }

@@ -2,8 +2,9 @@
     Import Middlewares
 \================================================================================================*/
 import * as website from './website.middleware'
+import * as publicAccess from './publicAccess.middleware'
 
 /*=============================================m_ÔÔ_m=============================================\
     Export Middlewares
 \================================================================================================*/
-export { website }
+export { website, publicAccess }
