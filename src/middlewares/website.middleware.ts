@@ -153,31 +153,56 @@ export const ensurePage = async (req: RequestWebsite, res: Response, next: NextF
 
         const pathWithoutTrailing = req.params.path !== '' ? req.params.path.slice(0, -1) : ''
 
-        req.page = !req.params.path
-            ? await db.models.page.findOne({
-                  where: {
-                      designVersionId: req.designVersion.id,
-                      pageId: req.designVersion.homePageId,
-                  },
-              })
-            : await db.models.page.findOne({
-                  where: {
-                      [Op.not]: { pageId: req.designVersion.homePageId },
-                      designVersionId: req.designVersion.id,
-                      [Op.or]: [
-                          { paths: { [Op.contains]: { [req.params.lang || 'default']: req.params.path } } },
-                          { paths: { [Op.contains]: { ['default']: req.params.path } } },
-                          { paths: { [Op.contains]: { [req.params.lang || 'default']: pathWithoutTrailing } } },
-                          { paths: { [Op.contains]: { ['default']: pathWithoutTrailing } } },
-                      ],
-                  },
-              })
+        if (!req.params.path) {
+            req.page = await db.models.page.findOne({
+                where: {
+                    designVersionId: req.designVersion.id,
+                    pageId: req.designVersion.homePageId,
+                },
+            })
+        } else {
+            const dynamicPaths = generateDynamicPaths(pathWithoutTrailing.split('/'))
+                .map((item: Array<String>) => item.join('/'))
+                .sort()
+
+            const where = {
+                [Op.not]: { pageId: req.designVersion.homePageId },
+                designVersionId: req.designVersion.id,
+                [Op.or]: [
+                    { paths: { [Op.contains]: { [req.params.lang || 'default']: req.params.path } } },
+                    { paths: { [Op.contains]: { ['default']: req.params.path } } },
+                    { paths: { [Op.contains]: { [req.params.lang || 'default']: pathWithoutTrailing } } },
+                    { paths: { [Op.contains]: { ['default']: pathWithoutTrailing } } },
+                    ...dynamicPaths.map((item: String) => ({ paths: { [Op.contains]: { [req.params.lang || 'default']: item } } })),
+                    ...dynamicPaths.map((item: String) => ({ paths: { [Op.contains]: { ['default']: item } } })),
+                ],
+            }
+
+            const pages = await db.models.page.findAll({
+                where,
+            })
+
+            pages.sort((a, b) => (a.paths[req.params.lang || 'default'] > b.paths[req.params.lang || 'default'] ? 1 : -1))
+            req.page = pages[0]
+        }
+
         if (!req.page) return websiteCore.redirectTo404(res, req.designVersion, req.params.lang)
 
         return next()
     } catch (err) /* istanbul ignore next */ {
         return next(err)
     }
+}
+
+const generateDynamicPaths = (array: any): any => {
+    if (array.length === 1) return [array[0], ':param']
+    const result = []
+    const arrayTmp = generateDynamicPaths(array.slice(1))
+    for (const item of arrayTmp) {
+        result.push([array[0], ...(Array.isArray(item) ? item : [item])])
+        result.push([':param', ...(Array.isArray(item) ? item : [item])])
+    }
+    return result
 }
 
 /**

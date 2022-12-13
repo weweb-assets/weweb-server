@@ -2,6 +2,7 @@ import { Response, NextFunction } from 'express'
 import { log } from '../services'
 import { RequestWebsite } from 'ww-request'
 import { website as websiteCore } from '../core'
+const wwmt = require('weweb-microservice-token')
 const mime = require('mime-types')
 
 /**
@@ -112,11 +113,20 @@ export const getIndex = async (req: RequestWebsite, res: Response, next: NextFun
 
         const stream = await websiteCore.streamFile(key)
 
-        if (process.env.HOSTNAME_PREVIEW && req.get('host').indexOf(`.${process.env.HOSTNAME_PREVIEW}`) !== -1) {
-            res.set({
-                'X-Robots-Tag': 'noindex',
-            })
+        //NOT ON SELF-HOST
+        if (process.env.HOSTNAME_PREVIEW) {
+            //WEWEB-PREVIEW DOMAIN
+            if (req.get('host').indexOf(`.${process.env.HOSTNAME_PREVIEW}`) !== -1) {
+                res.set({
+                    'X-Robots-Tag': 'noindex',
+                })
+            }
+            //CUSTOM DOMAIN : add view to design
+            else {
+                wwmt.post(`${process.env.WEWEB_BACK_URL}/v1/microservice/designs/${req.designVersion.designId}/add_view`)
+            }
         }
+
         res.set({
             'content-type': mime.lookup(key),
             'cache-control': 'no-cache',
