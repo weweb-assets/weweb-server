@@ -161,7 +161,7 @@ export const ensurePage = async (req: RequestWebsite, res: Response, next: NextF
                 },
             })
         } else {
-            const dynamicPaths = generateDynamicPaths(pathWithoutTrailing.split('/'))
+            const dynamicPaths = generateDynamicPaths(pathWithoutTrailing.split('/'), false)
                 .map((item: Array<String>) => item.join('/'))
                 .sort()
 
@@ -194,10 +194,10 @@ export const ensurePage = async (req: RequestWebsite, res: Response, next: NextF
     }
 }
 
-const generateDynamicPaths = (array: any): any => {
-    if (array.length === 1) return [array[0], ':param']
+const generateDynamicPaths = (array: any, isDeep: boolean): any => {
+    if (array.length === 1) return isDeep ? [array[0], ':param'] : [[array[0], ':param']]
     const result = []
-    const arrayTmp = generateDynamicPaths(array.slice(1))
+    const arrayTmp = generateDynamicPaths(array.slice(1), true)
     for (const item of arrayTmp) {
         result.push([array[0], ...(Array.isArray(item) ? item : [item])])
         result.push([':param', ...(Array.isArray(item) ? item : [item])])
