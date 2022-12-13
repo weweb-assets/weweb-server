@@ -1,19 +1,7 @@
 module.exports = {
     development: {
-        username: 'wwdb',
-        password: 'wwpassword',
-        database: 'wwpreview',
-        host: 'postgres',
-        port: '5432',
-        dialect: 'postgres',
     },
     test: {
-        username: 'wwdb',
-        password: 'wwpassword',
-        database: 'wwpreview',
-        host: 'postgres',
-        port: '5432',
-        dialect: 'postgres',
     },
     production: {
         username: process.env.RDS_USERNAME || process.env.DB_USERNAME,

@@ -25,6 +25,9 @@ export const version = async (req: Request, res: Response, next: NextFunction) =
     try {
         log.debug('controllers:utils:version')
 
+        //If HIDE_VERSION, disable route.
+        if (process.env.HIDE_VERSION) throw new Error()
+
         const version = process.env.npm_package_version.split('.')
 
         res.status(200)
@@ -43,13 +46,17 @@ export const version = async (req: Request, res: Response, next: NextFunction) =
 export const testConfig = async (req: Request, res: Response, next: NextFunction) => {
     log.debug('controllers:utils:testConfig')
 
+    //If HIDE_VERSION, disable route.
+    if (process.env.HIDE_VERSION) throw new Error()
+
     if (!req.body.publicKey || !req.body.privateKey) return res.status(400).send({ success: false, message: 'BAD_PARAMS' })
 
     let filesOk,
         filesStorage = 'NONE',
         dataBaseOk,
         publicKeyOk,
-        privateKeyOk
+        privateKeyOk,
+        filesPath = process.env.FILES_PATH
 
     try {
         const { storage, connected } = await websiteCore.testFiles()
@@ -80,7 +87,7 @@ export const testConfig = async (req: Request, res: Response, next: NextFunction
             running: true,
             files: filesOk,
             filesStorage,
-            filesPath: process.env.FILES_PATH,
+            filesPath,
             database: dataBaseOk,
             publicKey: publicKeyOk,
             privateKey: privateKeyOk,

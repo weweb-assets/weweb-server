@@ -2,6 +2,7 @@ import { Response, NextFunction } from 'express'
 import { log } from '../services'
 import { RequestWebsite } from 'ww-request'
 import { website as websiteCore } from '../core'
+const wwmt = require('weweb-microservice-token')
 const mime = require('mime-types')
 
 /**
@@ -13,12 +14,17 @@ export const getFile = async (req: RequestWebsite, res: Response, next: NextFunc
     try {
         log.debug('controllers:website:getFile')
 
-        const lastPath = req.params.path.split('/').pop()
+        if (!req.params.path) return res.status(404).send({ success: false, message: 'PATH_NOT_FOUND' })
+        const path = req.params.path
+
+        const lastPath = path.split('/').pop()
 
         if (lastPath.includes('.') && !lastPath.endsWith('.')) {
-            const key = `${websiteCore.getCachePath(req.designVersion.designId, req.designVersion.designVersionId, `${req.designVersion.cacheVersion}`)}/${
-                req.params.path
-            }`
+            const key = `${websiteCore.getCachePath(
+                req.designVersion.designId,
+                req.designVersion.designVersionId,
+                `${req.designVersion.cacheVersion}`
+            )}/${path}`
 
             const stream = await websiteCore.streamFile(key)
 
@@ -30,7 +36,7 @@ export const getFile = async (req: RequestWebsite, res: Response, next: NextFunc
             })
 
             stream.on('error', function (error: any) {
-                res.status(error.statusCode || 404).end(error.message || 'FILE_NOT_FOUND')
+                res.status(error.statusCode || 404).end(String(error.message) || 'FILE_NOT_FOUND')
             })
 
             return stream.pipe(res)
@@ -51,11 +57,14 @@ export const getDataFile = async (req: RequestWebsite, res: Response, next: Next
     try {
         log.debug('controllers:website:getDataFile')
 
+        if (!req.params.pageId) return res.status(404).send({ success: false, message: 'PAGE_NOT_FOUND' })
+        const pageId = req.params.pageId
+
         const key = `${websiteCore.getCachePath(
             req.designVersion.designId,
             req.designVersion.designVersionId,
             `${req.designVersion.cacheVersion}`
-        )}/public/data/${req.params.pageId}.json`
+        )}/public/data/${pageId}.json`
 
         let cacheControl = 'public, max-age=31536000'
         if (req.isPrivate) {
@@ -72,7 +81,7 @@ export const getDataFile = async (req: RequestWebsite, res: Response, next: Next
         })
 
         stream.on('error', function (error: any) {
-            res.status(error.statusCode || 404).end(error.message || 'FILE_NOT_FOUND')
+            res.status(error.statusCode || 404).end(String(error.message) || 'FILE_NOT_FOUND')
         })
 
         return stream.pipe(res)
@@ -104,11 +113,20 @@ export const getIndex = async (req: RequestWebsite, res: Response, next: NextFun
 
         const stream = await websiteCore.streamFile(key)
 
-        if (process.env.HOSTNAME_PREVIEW && req.get('host').indexOf(`.${process.env.HOSTNAME_PREVIEW}`) !== -1) {
-            res.set({
-                'X-Robots-Tag': 'noindex',
-            })
+        //NOT ON SELF-HOST
+        if (process.env.HOSTNAME_PREVIEW) {
+            //WEWEB-PREVIEW DOMAIN
+            if (req.get('host').indexOf(`.${process.env.HOSTNAME_PREVIEW}`) !== -1) {
+                res.set({
+                    'X-Robots-Tag': 'noindex',
+                })
+            }
+            //CUSTOM DOMAIN : add view to design
+            else {
+                wwmt.post(`${process.env.WEWEB_BACK_URL}/v1/microservice/designs/${req.designVersion.designId}/add_view`)
+            }
         }
+
         res.set({
             'content-type': mime.lookup(key),
             'cache-control': 'no-cache',
@@ -117,11 +135,11 @@ export const getIndex = async (req: RequestWebsite, res: Response, next: NextFun
         })
 
         stream.on('error', function (error: any) {
-            return websiteCore.redirectTo404(res, req.designVersion.id)
+            return websiteCore.redirectTo404(res, req.designVersion, req.params.lang)
         })
 
         return stream.pipe(res)
     } catch (err) /* istanbul ignore next */ {
-        return websiteCore.redirectTo404(res, req.designVersion.id)
+        return websiteCore.redirectTo404(res, req.designVersion, req.params.lang)
     }
 }

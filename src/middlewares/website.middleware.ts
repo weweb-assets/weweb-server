@@ -11,26 +11,43 @@ import {
     openId as openIdCore,
 } from '../core'
 import { log } from '../services'
+const wwmt = require('weweb-microservice-token')
 
 const internals = {
+    // Retrieve designVersion from the hostname
     getDesignVersionFromHost: async (host: string) => {
-        let designVersion
         if (process.env.HOSTNAME_PREVIEW && host.indexOf(`.${process.env.HOSTNAME_PREVIEW}`) !== -1) {
-            const designId = host.replace(`.${process.env.HOSTNAME_PREVIEW}`, '').toLowerCase()
-            designVersion = await db.models.designVersion.findOne({ where: { designId, isActive: true } })
+            /* WeWeb Preview
+             ** {{designId}}.weweb-preview.io
+             ** {{designId}}-staging.weweb-preview.io
+             ** {{designId}}-102.weweb-preview.io
+             ** {{designId}}-102-staging.weweb-preview.io
+             */
+            const envColumn = host.includes(`-staging.${process.env.HOSTNAME_PREVIEW}`) ? 'activeStaging' : 'activeProd'
+
+            //Find designId & Version
+            const params = host
+                .replace(`-staging.${process.env.HOSTNAME_PREVIEW}`, '')
+                .replace(`.${process.env.HOSTNAME_PREVIEW}`, '')
+                .replace('https://', '')
+                .replace('http://', '')
+                .replace('/', '')
+                .toLowerCase()
+            const uidVersionRegex = /^([\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12})-?(\d+)?$/
+            const matches = params.match(uidVersionRegex)
+            if (matches.length !== 3) return null
+            const designId = matches[1]
+            const version = matches[2]
+
+            if (version) return await db.models.designVersion.findOne({ where: { designId, cacheVersion: version } })
+            return await db.models.designVersion.findOne({ where: { designId, [envColumn]: true } })
         } else {
-            const designDomain = await db.models.designDomain.findOne({ where: { name: host } })
-            if (!designDomain) {
-                return null
-            }
-            designVersion = await db.models.designVersion.findOne({ where: { designId: designDomain.designId, isActive: true } })
+            // mydomain.com or mystagingdomain.com
+            const design = await db.models.design.findOne({ where: { [Op.or]: { name: host, stagingName: host } } })
+            if (!design) return null
+            const options = design.name === host ? { activeProd: true } : { activeStaging: true }
+            return await db.models.designVersion.findOne({ where: { designId: design.designId, ...options } })
         }
-
-        if (!designVersion) {
-            return null
-        }
-
-        return designVersion
     },
 }
 
@@ -44,18 +61,29 @@ export const ensureWebsite = async (req: RequestWebsite, res: Response, next: Ne
     try {
         log.debug('middlewares:website:ensureWebsite')
 
+        const origin = req.get('origin')
         const xForwardedHost = req.get('X-Forwarded-Host')
         const host = req.get('host')
-        if (xForwardedHost) {
+        let finalHost = ''
+        if (origin) {
+            req.designVersion = await internals.getDesignVersionFromHost(origin)
+            finalHost = origin
+        }
+        if (!req.designVersion && xForwardedHost) {
             req.designVersion = await internals.getDesignVersionFromHost(xForwardedHost)
+            finalHost = xForwardedHost
         }
         if (!req.designVersion && host) {
             req.designVersion = await internals.getDesignVersionFromHost(host)
+            finalHost = host
         }
 
-        if (!req.designVersion) {
-            return res.status(404).set({ 'cache-control': 'no-cache' }).send()
+        if (finalHost.includes(`-staging.${process.env.HOSTNAME_PREVIEW}`)) {
+            const { body: design } = await wwmt.get(`${process.env.WEWEB_BACK_URL}/v1/microservice/designs/${req.designVersion.designId}`)
+            if (!design.pricingPlan.features.staging) return res.status(403).set({ 'cache-control': 'no-cache' }).redirect('http://www.weweb.io/pricing')
         }
+
+        if (!req.designVersion) return res.status(404).set({ 'cache-control': 'no-cache' }).send()
 
         return next()
     } catch (err) /* istanbul ignore next */ {
@@ -86,7 +114,7 @@ export const ensureRedirection = async (req: RequestWebsite, res: Response, next
 
         switch (redirection.targetType) {
             case 'page':
-                if (!redirection.page) return websiteCore.redirectTo404(res, req.designVersion.id)
+                if (!redirection.page) return websiteCore.redirectTo404(res, req.designVersion, req.params.lang)
 
                 const isHomePage = req.designVersion.homePageId === redirection.page.pageId
                 const lang = req.params.lang || 'default'
@@ -125,31 +153,56 @@ export const ensurePage = async (req: RequestWebsite, res: Response, next: NextF
 
         const pathWithoutTrailing = req.params.path !== '' ? req.params.path.slice(0, -1) : ''
 
-        req.page = !req.params.path
-            ? await db.models.page.findOne({
-                  where: {
-                      designVersionId: req.designVersion.id,
-                      pageId: req.designVersion.homePageId,
-                  },
-              })
-            : await db.models.page.findOne({
-                  where: {
-                      [Op.not]: { pageId: req.designVersion.homePageId },
-                      designVersionId: req.designVersion.id,
-                      [Op.or]: [
-                          { paths: { [Op.contains]: { [req.params.lang || 'default']: req.params.path } } },
-                          { paths: { [Op.contains]: { ['default']: req.params.path } } },
-                          { paths: { [Op.contains]: { [req.params.lang || 'default']: pathWithoutTrailing } } },
-                          { paths: { [Op.contains]: { ['default']: pathWithoutTrailing } } },
-                      ],
-                  },
-              })
-        if (!req.page) return websiteCore.redirectTo404(res, req.designVersion.id)
+        if (!req.params.path) {
+            req.page = await db.models.page.findOne({
+                where: {
+                    designVersionId: req.designVersion.id,
+                    pageId: req.designVersion.homePageId,
+                },
+            })
+        } else {
+            const dynamicPaths = generateDynamicPaths(pathWithoutTrailing.split('/'))
+                .map((item: Array<String>) => item.join('/'))
+                .sort()
+
+            const where = {
+                [Op.not]: { pageId: req.designVersion.homePageId },
+                designVersionId: req.designVersion.id,
+                [Op.or]: [
+                    { paths: { [Op.contains]: { [req.params.lang || 'default']: req.params.path } } },
+                    { paths: { [Op.contains]: { ['default']: req.params.path } } },
+                    { paths: { [Op.contains]: { [req.params.lang || 'default']: pathWithoutTrailing } } },
+                    { paths: { [Op.contains]: { ['default']: pathWithoutTrailing } } },
+                    ...dynamicPaths.map((item: String) => ({ paths: { [Op.contains]: { [req.params.lang || 'default']: item } } })),
+                    ...dynamicPaths.map((item: String) => ({ paths: { [Op.contains]: { ['default']: item } } })),
+                ],
+            }
+
+            const pages = await db.models.page.findAll({
+                where,
+            })
+
+            pages.sort((a, b) => (a.paths[req.params.lang || 'default'] > b.paths[req.params.lang || 'default'] ? 1 : -1))
+            req.page = pages[0]
+        }
+
+        if (!req.page) return websiteCore.redirectTo404(res, req.designVersion, req.params.lang)
 
         return next()
     } catch (err) /* istanbul ignore next */ {
         return next(err)
     }
+}
+
+const generateDynamicPaths = (array: any): any => {
+    if (array.length === 1) return [array[0], ':param']
+    const result = []
+    const arrayTmp = generateDynamicPaths(array.slice(1))
+    for (const item of arrayTmp) {
+        result.push([array[0], ...(Array.isArray(item) ? item : [item])])
+        result.push([':param', ...(Array.isArray(item) ? item : [item])])
+    }
+    return result
 }
 
 /**
@@ -169,8 +222,7 @@ export const ensurePageFromId = async (req: RequestWebsite, res: Response, next:
             },
         })
         if (!req.page) {
-            const redirectUrl = await websiteCore.get404Url(req.designVersion.id)
-            return res.status(404).set({ 'cache-control': 'no-cache' }).send({ redirectUrl })
+            return websiteCore.redirectTo404(res, req.designVersion, req.params.lang)
         }
 
         return next()
@@ -214,10 +266,7 @@ export const ensureAuth = async (req: RequestWebsite, res: Response, next: NextF
             },
         })
         if (!page) {
-            return res
-                .status(404)
-                .set({ 'cache-control': 'no-cache' })
-                .send({ redirectUrl: await websiteCore.get404Url(req.designVersion.id) })
+            return websiteCore.redirectTo404(res, req.designVersion, req.params.lang)
         }
 
         const lang = (req.params.lang || req.query.wwlang) as string

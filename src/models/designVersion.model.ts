@@ -16,7 +16,10 @@ export interface DesignVersion {
         default: boolean | null
         isDefaultPath: boolean | null
     }>
-    isActive: boolean
+    activeProd: boolean
+    activeStaging: boolean
+    activeCheckpoint: boolean
+    activeBackup: boolean
     readonly createdAt: Date
     readonly updatedAt: Date
 }
@@ -70,8 +73,23 @@ export const init = (sequelize: Sequelize): DesignVersionStatic => {
                 type: DataTypes.JSONB,
                 allowNull: true,
             },
-            isActive: {
-                type: DataTypes.UUID,
+            activeProd: {
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
+                defaultValue: false,
+            },
+            activeStaging: {
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
+                defaultValue: false,
+            },
+            activeCheckpoint: {
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
+                defaultValue: false,
+            },
+            activeBackup: {
+                type: DataTypes.BOOLEAN,
                 allowNull: false,
                 defaultValue: false,
             },
@@ -79,7 +97,8 @@ export const init = (sequelize: Sequelize): DesignVersionStatic => {
         {
             indexes: [
                 { name: 'designVersions_designId_idx', using: 'BTREE', fields: ['designId'] },
-                { name: 'designVersions_designId_active_idx', using: 'BTREE', fields: ['designId', 'isActive'], where: { isActive: true } },
+                { name: 'designVersions_designId_active_prod_idx', using: 'BTREE', fields: ['designId', 'activeProd'], where: { activeProd: true } },
+                { name: 'designVersions_designId_active_staging_idx', using: 'BTREE', fields: ['designId', 'activeStaging'], where: { activeStaging: true } },
             ],
         }
     ) as DesignVersionStatic
@@ -124,7 +143,10 @@ export const init = (sequelize: Sequelize): DesignVersionStatic => {
             designVersionId: this.designVersionId,
             cacheVersion: this.cacheVersion,
             homePageId: this.homePageId,
-            isActive: this.isActive,
+            activeProd: this.activeProd,
+            activeStaging: this.activeStaging,
+            activeCheckpoint: this.activeCheckpoint,
+            activeBackup: this.activeBackup,
             langs: this.langs,
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
