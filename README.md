@@ -1,5 +1,5 @@
 
-[Learn more about WeWeb Public API here](https://github.com/weweb-team/weweb-preview/edit/staging/README.md#weweb-public-api)
+[Learn more about WeWeb Public API here](#weweb-public-api)
 
 # weweb-server
 
