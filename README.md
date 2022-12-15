@@ -1,3 +1,6 @@
+
+[Learn more about WeWeb Public API here](https://github.com/weweb-team/weweb-preview/edit/staging/README.md#weweb-public-api)
+
 # weweb-server
 
 ## Prerequisite
@@ -99,3 +102,185 @@ The new version of your project is now live !
 ## Updating `weweb-server`
 
 TBD
+
+# WeWeb Public API
+WeWeb Public API allows you to automate deployements on your weweb-server.
+
+WeWeb Public API has a rate limit of 3 calls per seconds and will return `429 Too many requests error` if the limit is hit.
+
+## Access to WeWeb Public API
+Please contact the WeWeb team to get access to WeWeb Public API.
+
+Currently, access to WeWeb Public API is also granted if you have access to the self-hosting feature.
+
+## Authentication
+WeWeb Public API authentication is done using an `Authorization` header in every requests.
+
+The value of this header should be `Bearer <YOUR WORKSPACE PRIVATE KEY>`.
+
+You workspace Private Key can be found under the `Settings` tab in your workspace.
+
+You can generate a new Private Key at any time but this will invalidate the old one.
+
+> Example :
+>  `headers: {"Authorization": "Bearer WW-PRIVATE-XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"}`
+
+#### Requests available :
+[Start the publication of a project](#start-the-publication-of-a-project)
+
+[Check the publication status of a project](#check-the-publication-status-of-a-project)
+
+[Download Raw project files ZIP (not built) by version](#download-raw-project-files-zip-not-built-by-version)
+
+[Start project file ZIP (built and ready for deployment) generation by version](#start-project-file-zip-built-and-ready-for-deployment-generation-by-version)
+
+[Get project file ZIP (built and ready for deployment) generation status by version](#get-project-file-zip-built-and-ready-for-deployment-generation-status-by-version)
+
+[Download project files ZIP (built and ready for deployment) by version](#download-project-files-zip-built-and-ready-for-deployment-by-version)
+
+[Download “weweb-server.config.json“ by version](#download-weweb-serverconfigjson-by-version)
+
+[Activate a version in you weweb-server](#activate-a-version-in-you-weweb-server)
+
+#### Typical auto deploy script
+A typical auto deploy script should be :
+```
+ 1. Start the publication of a project.
+ 2. Store the version provided by the previous request
+ 3. While the project is publishing, check the publication status of a project. The publication is done when the progress is 100 and status is "published".
+ 4. Start project file ZIP (built and ready for deployment) generation by version using the version provided in the start publication step
+ 5. While the ZIP file is being generated, get the generation status by version using the version provided in the start publication step
+ 6. Download project files ZIP by version using the version provided in the start publication step
+ 7. Save the downloaded ZIP file
+ 8. Extract the download zip file to your weweb-server storage at the right place (defined by FILES_PATH
+ 9. Activate the published version in you weweb-server using the version provided in the start publication step
+```
+
+### Start the publication of a project
+
+- **Method** : `POST`
+- **URL** : 
+`https://api.weweb-preprod.io/public/v1/workspaces/{{:workspaceId}}/projects/{{:projectId}}/publish`
+`:workspaceId` can be found in the URL of the workspace
+`:projectId` can be found in the URL of the project
+- **Data** : 
+`env` : accepts values `production` or `staging` and defines the target of the publication. Publishing to production will also publish to staging.
+- **Returns** :
+```
+{
+	"progress": 0,    //Progress of the publish from 0 to 100
+	"message": "Fetching data",    //Progress message
+	"status": "publish",    //Status of the publish. Can be : publish / published / error
+	"environment": "production",    //Target environment
+	"version": 33,    //Version of current publish
+	"createdAt": "2022-12-12T16:13:47.142Z"    //Date of creation
+}
+```
+
+### Check the publication status of a project
+
+- **Method** : `GET`
+- **URL** : 
+`https://api.weweb-preprod.io/public/v1/workspaces/{{:workspaceId}}/projects/{{:projectId}}/publish/status`
+`:workspaceId` can be found in the URL of the workspace
+`:projectId` can be found in the URL of the project
+- **Data** : *no data*.
+ - **Returns** :
+```
+{
+	"progress": 0,    //Progress of the publish from 0 to 100
+	"message": "Fetching data",    //Progress message
+	"status": "publish",    //Status of the publish. Can be : publish / published / error
+	"environment": "production",    //Target environment
+	"version": 33,    //Version of current publish
+	"createdAt": "2022-12-12T16:13:47.142Z"    //Date of creation
+}
+```
+
+### Download Raw project files ZIP (not built) by version
+
+- **Method** : `GET`
+- **URL** : 
+`https://api.weweb-preprod.io/public/v1/workspaces/{{:workspaceId}}/projects/{{:projectId}}/versions/{{:version}}/download/raw`
+`:workspaceId` can be found in the URL of the workspace
+`:projectId` can be found in the URL of the project
+`:version` can be found in the `Versions` tab of the project or as a result of previous requests.
+- **Data** : *no data*.
+ - **Returns** : a ZIP file containing the Raw project files.
+ 
+###  Start project file ZIP (built and ready for deployment) generation by version 
+
+- **Method** : `GET`
+- **URL** : 
+`https://api.weweb-preprod.io/public/v1/workspaces/{{:workspaceId}}/projects/{{:projectId}}/versions/{{:version}}/download/generate`
+`:workspaceId` can be found in the URL of the workspace
+`:projectId` can be found in the URL of the project
+`:version` can be found in the `Versions` tab of the project or as a result of previous requests.
+- **Data** : *no data*.
+ - **Returns** :
+```
+{
+	"progress": 0,    //Progress of the generation from 0 to 100
+	"status": "IN_PROGRESS",    //Status of the generation. Can be : IN_PROGRESS / DONE / ERROR 
+}
+``` 
+###  Get project file ZIP (built and ready for deployment) generation status by version 
+
+- **Method** : `GET`
+- **URL** : 
+`https://api.weweb-preprod.io/public/v1/workspaces/{{:workspaceId}}/projects/{{:projectId}}/versions/{{:version}}/download/status`
+`:workspaceId` can be found in the URL of the workspace
+`:projectId` can be found in the URL of the project
+`:version` can be found in the `Versions` tab of the project or as a result of previous requests.
+- **Data** : *no data*.
+ - **Returns** :
+```
+{
+	"progress": 0,    //Progress of the generation from 0 to 100
+	"status": "IN_PROGRESS",    //Status of the generation. Can be : IN_PROGRESS / DONE / ERROR 
+}
+```
+###    Download project files ZIP (built and ready for deployment) by version  
+
+- **Method** : `GET`
+- **URL** : 
+`https://api.weweb-preprod.io/public/v1/workspaces/{{:workspaceId}}/projects/{{:projectId}}/versions/{{:version}}/download`
+`:workspaceId` can be found in the URL of the workspace
+`:projectId` can be found in the URL of the project
+`:version` can be found in the `Versions` tab of the project or as a result of previous requests.
+- **Data** : *no data*.
+ - **Returns** : a ZIP file containing the project files ready for deployment.
+ 
+###     Download “weweb-server.config.json“ by version  
+
+- **Method** : `GET`
+- **URL** : 
+`https://api.weweb-preprod.io/public/v1/workspaces/{{:workspaceId}}/projects/{{:projectId}}/versions/{{:version}}/config`
+`:workspaceId` can be found in the URL of the workspace
+`:projectId` can be found in the URL of the project
+`:version` can be found in the `Versions` tab of the project or as a result of previous requests.
+- **Data** : *no data*.
+ - **Returns** : Returns a JSON containing all the data needed to configure the weweb-server.
+ 
+
+> The result of this requets should be saved in a `weweb-server.config.json` file that is at in the root folder of weweb-server.
+> At the next start, weweb-server will look for this file and create a new version on it's database.
+> This is only useful if your weweb-server cannot be reached on the internet by our servers.
+
+
+###  Activate a version in you weweb-server 
+***This request is done directly to your weweb-server***
+
+- **Method** : `POST`
+- **URL** : 
+`https://<YOUR WEWEB-SERVER URL>/public/v1/projects/{{:projectId}}/versions/{{:version}}/active`
+`:projectId` can be found in the URL of the project
+`:version` can be found in the `Versions` tab of the project or as a result of previous requests.
+- **Data** : 
+`env` : accepts values `production` or `staging` and defines the target of the activation.
+ - **Returns** :
+```
+{
+	"success": true,    //Success, can be `true` or `false`
+}
+```
