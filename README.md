@@ -46,8 +46,8 @@ The storage location is configured using environment variables.
 | ------------ | -------- | ------- | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | NODE_ENV     | Yes      | -       | production                               | Must be set to production                                                                                                                                            |
 | FILES_PATH   | Yes      | -       | -                                        | Path of a frontend project's files in your storage. [More information](#files_path-)                                                                                 |
-| PUBLIC_KEY   | Yes      | -       | -                                        | Can be found in WeWeb Dashboard > Workspace > Self-Hosting                                                                                                           |
-| PRIVATE_KEY  | Yes      | -       | -                                        | Can be found in WeWeb Dashboard > Workspace > Self-Hosting                                                                                                           |
+| PUBLIC_KEY   | Yes      | -       | -                                        | Can be found in WeWeb Dashboard > Workspace > Settings                                                                                                           |
+| PRIVATE_KEY  | Yes      | -       | -                                        | Can be found in WeWeb Dashboard > Workspace > Settings                                                                                                           |
 | PORT         | No       | 80      | -                                        | Port where `weweb-server` should run                                                                                                                                 |
 | SERVER_PATH  | No       | -       | -                                        | Sub path for your server url. Not required if your server url is an IP or a domain name. [More information](#server_path-)                                           |
 | WW_LOG_LEVEL | No       | trace   | _fatal, error, warn, info, debug, trace_ | Logs `weweb-server` should display                                                                                                                                   |
@@ -118,7 +118,7 @@ WeWeb Public API authentication is done using an `Authorization` header in every
 
 The value of this header should be `Bearer <YOUR WORKSPACE PRIVATE KEY>`.
 
-You workspace Private Key can be found under the `Settings` tab in your workspace.
+Your workspace Private Key can be found under the `Settings` tab in your workspace.
 
 You can generate a new Private Key at any time but this will invalidate the old one.
 
