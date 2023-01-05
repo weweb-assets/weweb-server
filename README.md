@@ -160,7 +160,7 @@ A typical auto deploy script should be :
 
 - **Method** : `POST`
 - **URL** : 
-`https://api.weweb-preprod.io/public/v1/workspaces/{{:workspaceId}}/projects/{{:projectId}}/publish`
+`https://api.weweb.io/public/v1/workspaces/{{:workspaceId}}/projects/{{:projectId}}/publish`
 `:workspaceId` can be found in the URL of the workspace
 `:projectId` can be found in the URL of the project
 - **Data** : 
@@ -181,7 +181,7 @@ A typical auto deploy script should be :
 
 - **Method** : `GET`
 - **URL** : 
-`https://api.weweb-preprod.io/public/v1/workspaces/{{:workspaceId}}/projects/{{:projectId}}/publish/status`
+`https://api.weweb.io/public/v1/workspaces/{{:workspaceId}}/projects/{{:projectId}}/publish/status`
 `:workspaceId` can be found in the URL of the workspace
 `:projectId` can be found in the URL of the project
 - **Data** : *no data*.
@@ -201,7 +201,7 @@ A typical auto deploy script should be :
 
 - **Method** : `GET`
 - **URL** : 
-`https://api.weweb-preprod.io/public/v1/workspaces/{{:workspaceId}}/projects/{{:projectId}}/versions/{{:version}}/download/raw`
+`https://api.weweb.io/public/v1/workspaces/{{:workspaceId}}/projects/{{:projectId}}/versions/{{:version}}/download/raw`
 `:workspaceId` can be found in the URL of the workspace
 `:projectId` can be found in the URL of the project
 `:version` can be found in the `Versions` tab of the project or as a result of previous requests.
@@ -212,7 +212,7 @@ A typical auto deploy script should be :
 
 - **Method** : `GET`
 - **URL** : 
-`https://api.weweb-preprod.io/public/v1/workspaces/{{:workspaceId}}/projects/{{:projectId}}/versions/{{:version}}/download/generate`
+`https://api.weweb.io/public/v1/workspaces/{{:workspaceId}}/projects/{{:projectId}}/versions/{{:version}}/download/generate`
 `:workspaceId` can be found in the URL of the workspace
 `:projectId` can be found in the URL of the project
 `:version` can be found in the `Versions` tab of the project or as a result of previous requests.
@@ -228,7 +228,7 @@ A typical auto deploy script should be :
 
 - **Method** : `GET`
 - **URL** : 
-`https://api.weweb-preprod.io/public/v1/workspaces/{{:workspaceId}}/projects/{{:projectId}}/versions/{{:version}}/download/status`
+`https://api.weweb.io/public/v1/workspaces/{{:workspaceId}}/projects/{{:projectId}}/versions/{{:version}}/download/status`
 `:workspaceId` can be found in the URL of the workspace
 `:projectId` can be found in the URL of the project
 `:version` can be found in the `Versions` tab of the project or as a result of previous requests.
@@ -244,7 +244,7 @@ A typical auto deploy script should be :
 
 - **Method** : `GET`
 - **URL** : 
-`https://api.weweb-preprod.io/public/v1/workspaces/{{:workspaceId}}/projects/{{:projectId}}/versions/{{:version}}/download`
+`https://api.weweb.io/public/v1/workspaces/{{:workspaceId}}/projects/{{:projectId}}/versions/{{:version}}/download`
 `:workspaceId` can be found in the URL of the workspace
 `:projectId` can be found in the URL of the project
 `:version` can be found in the `Versions` tab of the project or as a result of previous requests.
@@ -255,7 +255,7 @@ A typical auto deploy script should be :
 
 - **Method** : `GET`
 - **URL** : 
-`https://api.weweb-preprod.io/public/v1/workspaces/{{:workspaceId}}/projects/{{:projectId}}/versions/{{:version}}/config`
+`https://api.weweb.io/public/v1/workspaces/{{:workspaceId}}/projects/{{:projectId}}/versions/{{:version}}/config`
 `:workspaceId` can be found in the URL of the workspace
 `:projectId` can be found in the URL of the project
 `:version` can be found in the `Versions` tab of the project or as a result of previous requests.
