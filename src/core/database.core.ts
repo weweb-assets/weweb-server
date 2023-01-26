@@ -104,8 +104,8 @@ export default class PostgreSQL extends Sequelize {
         const designVersion = await db.models.designVersion.create({ ...config, id: undefined, activeProd: false, activeStaging: false })
 
         const [design] = await db.models.design.findOrCreate({
-            where: { designId: config.design.id },
-            defaults: { designId: config.design.id },
+            where: { designId: config.designId },
+            defaults: { designId: config.designId },
         })
         await design.update({ name: config.design.name || design.name, stagingName: config.design.stagingName || design.stagingName })
 
