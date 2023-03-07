@@ -2,6 +2,7 @@ import { RequestWebsite } from 'ww-request'
 import { Response } from 'express'
 import { PluginSettings } from '../models/pluginSettings.model'
 import { CognitoIdentityServiceProvider } from 'aws-sdk'
+import { log } from '../services'
 
 const cognito = new CognitoIdentityServiceProvider({
     apiVersion: '2016-04-18',
@@ -65,7 +66,10 @@ export default class WeWebAuth {
                 const rolesNotFound = userGroup.roles.filter((role: { value: string }) => !userRoles.find(userRole => userRole.GroupName === role.value))
                 if (!rolesNotFound.length) return true
             }
-        } catch {}
+        } catch (error) {
+            log.debug(`core:wewebAuth:core ERROR`)
+            log.debug(error)
+        }
         return false
     }
 }

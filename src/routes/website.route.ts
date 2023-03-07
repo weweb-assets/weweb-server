@@ -27,6 +27,7 @@ export default (app: Application) => {
             req.isIndexHtml = true
             return next()
         },
+        websiteMdwl.addViewToDesign,
         websiteMdwl.ensureAuth,
         websiteCtrl.getIndex
     )

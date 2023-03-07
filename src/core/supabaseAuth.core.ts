@@ -2,6 +2,7 @@ import { RequestWebsite } from 'ww-request'
 import { Response } from 'express'
 import { PluginSettings } from '../models/pluginSettings.model'
 import { createClient } from '@supabase/supabase-js'
+import { log } from '../services'
 
 /**
  * SupabaseAuth core.
@@ -19,6 +20,8 @@ export default class SupabaseAuth {
         const instance = createClient(projectUrl, apiKey)
 
         let { user, error: userError } = await instance.auth.api.getUser(accessToken)
+        log.debug(`core:supabaseAuth:core:getUser ERROR`)
+        log.debug(userError)
         if (userError) {
             const response = await instance.auth.api.refreshAccessToken(refreshToken)
             if (response.error) throw response.error
@@ -66,7 +69,10 @@ export default class SupabaseAuth {
                 const rolesNotFound = userGroup.roles.filter((role: { value: string }) => !userRoles.find(userRole => userRole.id === role.value))
                 if (!rolesNotFound.length) return true
             }
-        } catch {}
+        } catch (error) {
+            log.debug(`core:supabaseAuth:core:ensureAuth ERROR`)
+            log.debug(error)
+        }
         return false
     }
 }

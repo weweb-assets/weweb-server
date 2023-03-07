@@ -99,35 +99,31 @@ export default class PostgreSQL extends Sequelize {
 
         const config = JSON.parse(fs.readFileSync('./weweb-server.config.json', 'utf8'))
         const pagesMap = {} as any
-        const pluginSettingsMap = {} as any
 
         const designVersion = await db.models.designVersion.create({ ...config, id: undefined, activeProd: false, activeStaging: false })
 
         const [design] = await db.models.design.findOrCreate({
-            where: { designId: config.designId },
-            defaults: { designId: config.designId },
+            where: { designId: config.design.id },
+            defaults: { designId: config.design.id },
         })
         await design.update({ name: config.design.name || design.name, stagingName: config.design.stagingName || design.stagingName })
 
+        for (const cmsDataSet of config.cmsDataSets) {
+            await db.models.cmsDataSet.create({ ...cmsDataSet, designVersionId: designVersion.id, id: undefined })
+        }
         for (const page of config.pages) {
             const { id } = await db.models.page.create({ ...page, designVersionId: designVersion.id, id: undefined })
             pagesMap[page.id] = id
         }
+        for (const pluginSetting of config.pluginSettings) {
+            await db.models.pluginSettings.create({ ...pluginSetting, designVersionId: designVersion.id, id: undefined })
+        }
         for (const redirection of config.redirections) {
             await db.models.redirection.create({ ...redirection, designVersionId: designVersion.id, pageId: pagesMap[redirection.pageId], id: undefined })
-        }
-        for (const pluginSetting of config.pluginSettings) {
-            const { id } = await db.models.pluginSettings.create({ ...pluginSetting, designVersionId: designVersion.id, id: undefined })
-            pluginSettingsMap[pluginSetting.id] = id
-        }
-        for (const cmsDataSet of config.cmsDataSets) {
-            await db.models.cmsDataSet.create({ ...cmsDataSet, designVersionId: designVersion.id, settingsId: pluginSettingsMap[cmsDataSet.settingsId], id: undefined })
         }
 
         await db.models.designVersion.update({ activeProd: false }, { where: { designId: config.designId, activeProd: true } })
 
         await designVersion.update({ activeProd: true })
-        
-        log.debug(`Successfuly imported weweb-server.config.json for project ${config.designId} version ${config.cacheVersion}`)
     }
 }

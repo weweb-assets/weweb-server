@@ -59,7 +59,7 @@ const internals = {
  */
 export const ensureWebsite = async (req: RequestWebsite, res: Response, next: NextFunction) => {
     try {
-        log.debug('middlewares:website:ensureWebsite')
+        log.debug(`middlewares:website:ensureWebsite ${req.get('origin') || req.get('X-Forwarded-Host') || req.get('host')}${req.url}`)
 
         const origin = req.get('origin')
         const xForwardedHost = req.get('X-Forwarded-Host')
@@ -78,12 +78,34 @@ export const ensureWebsite = async (req: RequestWebsite, res: Response, next: Ne
             finalHost = host
         }
 
-        if (finalHost.includes(`-staging.${process.env.HOSTNAME_PREVIEW}`)) {
-            const { body: design } = await wwmt.get(`${process.env.WEWEB_BACK_URL}/v1/microservice/designs/${req.designVersion.designId}`)
-            if (!design.pricingPlan.features.staging) return res.status(403).set({ 'cache-control': 'no-cache' }).redirect('http://www.weweb.io/pricing')
-        }
+        req.finalHost = finalHost
 
         if (!req.designVersion) return res.status(404).set({ 'cache-control': 'no-cache' }).send()
+
+        return next()
+    } catch (err) /* istanbul ignore next */ {
+        return next(err)
+    }
+}
+
+/**
+ * Add View to Design.
+ * @param req Request
+ * @param res Response
+ * @param next NextFunction
+ */
+export const addViewToDesign = async (req: RequestWebsite, res: Response, next: NextFunction) => {
+    try {
+        log.debug(`middlewares:website:addViewToDesign ${req.get('origin') || req.get('X-Forwarded-Host') || req.get('host')}${req.url}`)
+
+        //NOT ON SELF-HOST
+        if (process.env.HOSTNAME_PREVIEW) {
+            //CUSTOM DOMAIN : add view to design
+            const host = req.get('origin') || req.get('X-Forwarded-Host') || req.get('host')
+            if (host.indexOf(`.${process.env.HOSTNAME_PREVIEW}`) === -1) {
+                wwmt.post(`${process.env.WEWEB_BACK_URL}/v1/microservice/designs/${req.designVersion.designId}/add_view`)
+            }
+        }
 
         return next()
     } catch (err) /* istanbul ignore next */ {
@@ -99,7 +121,7 @@ export const ensureWebsite = async (req: RequestWebsite, res: Response, next: Ne
  */
 export const ensureRedirection = async (req: RequestWebsite, res: Response, next: NextFunction) => {
     try {
-        log.debug('middlewares:website:ensureRedirection')
+        log.debug(`middlewares:website:ensureRedirection ${req.get('origin') || req.get('X-Forwarded-Host') || req.get('host')}${req.url}`)
 
         const urlSource = req.url.replace('/', '')
 
@@ -114,7 +136,7 @@ export const ensureRedirection = async (req: RequestWebsite, res: Response, next
 
         switch (redirection.targetType) {
             case 'page':
-                if (!redirection.page) return websiteCore.redirectTo404(res, req.designVersion, req.params.lang)
+                if (!redirection.page) return websiteCore.redirectTo404(res)
 
                 const isHomePage = req.designVersion.homePageId === redirection.page.pageId
                 const lang = req.params.lang || 'default'
@@ -141,13 +163,18 @@ export const ensureRedirection = async (req: RequestWebsite, res: Response, next
  */
 export const ensurePage = async (req: RequestWebsite, res: Response, next: NextFunction) => {
     try {
-        log.debug('middlewares:website:ensurePage')
+        log.debug(`middlewares:website:ensurePage ${req.get('origin') || req.get('X-Forwarded-Host') || req.get('host')}${req.url}`)
+
         req.params.path = req.params.path || ''
 
         if (req.params.path !== '' && !req.params.path.endsWith('/')) {
             let redirectUrl = req.originalUrl
             if (req.originalUrl.indexOf('?') !== -1) redirectUrl = redirectUrl.replace('?', '/?')
             else redirectUrl = `${redirectUrl}/`
+
+            //Prevent double slashes on redirect urls
+            while (redirectUrl.indexOf('//') !== -1) redirectUrl = redirectUrl.replace('//', '/')
+
             return res.set({ 'cache-control': 'no-cache' }).redirect(301, redirectUrl)
         }
 
@@ -182,11 +209,19 @@ export const ensurePage = async (req: RequestWebsite, res: Response, next: NextF
                 where,
             })
 
-            pages.sort((a, b) => (a.paths[req.params.lang || 'default'] > b.paths[req.params.lang || 'default'] ? 1 : -1))
+            pages.sort((a, b) => (a.paths[req.params.lang || 'default'] > b.paths[req.params.lang || 'default'] ? -1 : 1))
             req.page = pages[0]
         }
 
-        if (!req.page) return websiteCore.redirectTo404(res, req.designVersion, req.params.lang)
+        if (!req.page) {
+            const page404 = await websiteCore.get404Page(req.designVersion)
+            if (page404) {
+                req.page = page404
+                req.is404 = true
+            } else {
+                return websiteCore.redirectTo404(res)
+            }
+        }
 
         return next()
     } catch (err) /* istanbul ignore next */ {
@@ -213,7 +248,7 @@ const generateDynamicPaths = (array: any, isDeep: boolean): any => {
  */
 export const ensurePageFromId = async (req: RequestWebsite, res: Response, next: NextFunction) => {
     try {
-        log.debug('middlewares:website:ensurePageFromId')
+        log.debug(`middlewares:website:ensurePageFromId ${req.get('origin') || req.get('X-Forwarded-Host') || req.get('host')}${req.url}`)
 
         req.page = await db.models.page.findOne({
             where: {
@@ -222,7 +257,7 @@ export const ensurePageFromId = async (req: RequestWebsite, res: Response, next:
             },
         })
         if (!req.page) {
-            return websiteCore.redirectTo404(res, req.designVersion, req.params.lang)
+            return websiteCore.redirectTo404(res)
         }
 
         return next()
@@ -247,7 +282,7 @@ const AUTH_PLUGINS_ID = [AUTH0_PLUGIN_ID, XANO_PLUGIN_ID, AUTH_TOKEN_PLUGIN_ID, 
  */
 export const ensureAuth = async (req: RequestWebsite, res: Response, next: NextFunction) => {
     try {
-        log.debug('middlewares:website:ensureAuth')
+        log.debug(`middlewares:website:ensureAuth ${req.get('origin') || req.get('X-Forwarded-Host') || req.get('host')}${req.url}`)
 
         if (!req.page.userGroups.length) return next()
 
@@ -266,7 +301,7 @@ export const ensureAuth = async (req: RequestWebsite, res: Response, next: NextF
             },
         })
         if (!page) {
-            return websiteCore.redirectTo404(res, req.designVersion, req.params.lang)
+            return websiteCore.redirectTo404(res)
         }
 
         const lang = (req.params.lang || req.query.wwlang) as string
@@ -292,6 +327,11 @@ export const ensureAuth = async (req: RequestWebsite, res: Response, next: NextF
             case XANO_PLUGIN_ID:
                 pluginSettings.publicData.userEndpoint = pluginSettings.publicData.getMeEndpoint
                 pluginSettings.publicData.type = `bearer-token`
+                const xDataSource = req.finalHost.includes(`-staging.${process.env.HOSTNAME_PREVIEW}`)
+                    ? pluginSettings.publicData.xDataSourceStaging
+                    : pluginSettings.publicData.xDataSourceProd
+                isAuth = await authTokenCore.ensureAuth(req, res, pluginSettings, { headers: xDataSource ? { 'X-Data-Source': xDataSource } : {} })
+                break
             case AUTH_TOKEN_PLUGIN_ID:
                 isAuth = await authTokenCore.ensureAuth(req, res, pluginSettings)
                 break

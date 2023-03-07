@@ -17,16 +17,15 @@ export default class Website {
      * Redirect to page 404
      * @memberof Server
      */
-    public async redirectTo404(res: Response, designVersion: any, lang: string) {
-        const url = await this.get404Url(designVersion, lang)
-        return url ? res.set({ 'cache-control': 'no-cache' }).status(404).redirect(url) : res.set({ 'cache-control': 'no-cache' }).status(404).send()
+    public async redirectTo404(res: Response) {
+        return res.set({ 'cache-control': 'no-cache' }).status(404).send()
     }
 
     /**
-     * Get page 404
+     * Get 404 page
      * @memberof Server
      */
-    public async get404Url(designVersion: any, lang: string) {
+    public async get404Page(designVersion: any) {
         const page = await db.models.page.findOne({
             where: {
                 designVersionId: designVersion.id,
@@ -34,36 +33,7 @@ export default class Website {
             },
         })
 
-        let langPath = ''
-
-        //Lang in request path
-        if (lang) {
-            const langConfig = designVersion.langs.find((langConfig: any) => langConfig.lang === lang)
-
-            //Lang not found
-            if (!langConfig) lang = null
-            //Lang found & is default lang
-            else if (langConfig.default) {
-                //Use lang slug
-                if (langConfig.isDefaultPath) langPath = `/${langConfig.lang}`
-                //Do not use lang slug
-                else langPath = ''
-            }
-            //Lang found & is not default
-            else langPath = `/${langConfig.lang}`
-        }
-
-        //No lang in request path
-        if (!lang) {
-            const defaultLangConfig = designVersion.langs.find((langConfig: any) => langConfig.default)
-
-            //Default lang config use slug
-            if (defaultLangConfig.isDefaultPath) langPath = `/${defaultLangConfig.lang}`
-            //Default lang config do not use slug
-            else langPath = ''
-        }
-
-        return page ? `${langPath}/404` : null
+        return page
     }
 
     /**
@@ -112,6 +82,27 @@ export default class Website {
                 LastModified: file.headers['last-modified'],
                 AcceptRanges: file.headers['accept-ranges'],
             }
+        }
+    }
+    /**
+     * Get file from S3 through Cloudfront
+     * @memberof Server
+     */
+    public async getFileWithCloudfront(encoding: string, key: string) {
+        const file = await axios.get(`${process.env.CDN_WEBSITES_URL}/${key}`, {
+            responseType: 'arraybuffer',
+            headers: {
+                'accept-encoding': encoding || '',
+            },
+        })
+        return {
+            data: file.data,
+            ContentEncoding: file.headers['content-encoding'],
+            ContentType: file.headers['content-type'],
+            ContentLength: file.headers['content-length'],
+            ETag: file.headers['etag'],
+            LastModified: file.headers['last-modified'],
+            AcceptRanges: file.headers['accept-ranges'],
         }
     }
 
