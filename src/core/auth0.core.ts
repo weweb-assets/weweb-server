@@ -1,8 +1,8 @@
 import { RequestWebsite } from 'ww-request'
 import { Response } from 'express'
 import auth0 from 'auth0'
-import { OAuthClientOptions } from 'auth0'
 import { PluginSettings } from '../models/pluginSettings.model'
+import { log } from '../services'
 
 /**
  * Auth0 core.
@@ -54,7 +54,10 @@ export default class Auth0 {
                 const rolesNotFound = userGroup.roles.filter((role: { value: string }) => !userRoles.find((userRole: auth0.Role) => userRole.id === role.value))
                 if (!rolesNotFound.length) return true
             }
-        } catch {}
+        } catch (error) {
+            log.debug(`core:auth0:core:ensureAuth ERROR`)
+            log.debug(error)
+        }
         return false
     }
 }

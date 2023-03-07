@@ -6,4 +6,6 @@ export interface RequestWebsite extends Request {
     page: page.Page
     isIndexHtml: Boolean
     isPrivate: Boolean
+    finalHost: string
+    is404: Boolean
 }

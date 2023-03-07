@@ -3,6 +3,7 @@ import { Response } from 'express'
 import { PluginSettings } from '../models/pluginSettings.model'
 import axios from 'axios'
 import _ from 'lodash'
+import { log } from '../services'
 
 /**
  * Auth0 core.
@@ -29,7 +30,7 @@ export default class AuthToken {
         }
     }
 
-    public async ensureAuth(req: RequestWebsite, res: Response, settings: PluginSettings) {
+    public async ensureAuth(req: RequestWebsite, res: Response, settings: PluginSettings, options: any = {}) {
         const { userEndpoint, refreshTokenEndpoint, refreshFieldRequest, refreshFieldResponse, type, name } = settings.publicData
 
         try {
@@ -40,7 +41,8 @@ export default class AuthToken {
                 accessToken = _.get(data, refreshFieldResponse, data)
                 res.cookie('ww-auth-access-token', accessToken)
             }
-            const { data } = await axios.get(userEndpoint, { headers: this.buildHeader(type, name, accessToken) })
+            const headers = { ...this.buildHeader(type, name, accessToken), ...(options.headers || {}) }
+            const { data } = await axios.get(userEndpoint, { headers })
 
             const { roleKey, roleType, roleTypeKey, roles } = settings.privateData
             const userRoles = _.get(data, roleKey)
@@ -62,7 +64,10 @@ export default class AuthToken {
                     if (!rolesNotFound.length) return true
                 }
             }
-        } catch {}
+        } catch (error) {
+            log.debug(`core:authToken:core:ensureAuth ERROR`)
+            log.debug(error)
+        }
         return false
     }
 }

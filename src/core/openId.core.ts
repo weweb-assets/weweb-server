@@ -1,10 +1,9 @@
 import { RequestWebsite } from 'ww-request'
 import { Response } from 'express'
 import { PluginSettings } from '../models/pluginSettings.model'
-import axios from 'axios'
 import _ from 'lodash'
 import { Issuer, TokenSet, ClientMetadata } from 'openid-client'
-import test from 'openid-client'
+import { log } from '../services'
 
 /**
  * OpenId core.
@@ -56,7 +55,10 @@ export default class OpenId {
                     if (!rolesNotFound.length) return true
                 }
             }
-        } catch {}
+        } catch (error) {
+            log.debug(`core:openId:core:ensureAuth ERROR`)
+            log.debug(error)
+        }
         return false
     }
 }
