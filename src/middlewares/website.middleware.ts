@@ -98,14 +98,6 @@ export const addViewToDesign = async (req: RequestWebsite, res: Response, next: 
     try {
         log.debug(`middlewares:website:addViewToDesign ${req.get('origin') || req.get('X-Forwarded-Host') || req.get('host')}${req.url}`)
 
-        //NOT ON SELF-HOST
-        if (process.env.HOSTNAME_PREVIEW) {
-            //CUSTOM DOMAIN : add view to design
-            const host = req.get('origin') || req.get('X-Forwarded-Host') || req.get('host')
-            if (host.indexOf(`.${process.env.HOSTNAME_PREVIEW}`) === -1) {
-                wwmt.post(`${process.env.WEWEB_BACK_URL}/v1/microservice/designs/${req.designVersion.designId}/add_view`)
-            }
-        }
 
         return next()
     } catch (err) /* istanbul ignore next */ {

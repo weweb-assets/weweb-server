@@ -1,3 +1,4 @@
+import cluster from 'cluster'
 import { Model, ModelCtor, Sequelize } from 'sequelize'
 import * as models from '../models'
 import { log } from '../services'
@@ -95,7 +96,7 @@ export default class PostgreSQL extends Sequelize {
      * @memberof PostgreSQL
      */
     public async importConfig() {
-        if (!fs.existsSync('./weweb-server.config.json')) return
+        if (!cluster.isPrimary || !fs.existsSync('./weweb-server.config.json')) return
 
         const config = JSON.parse(fs.readFileSync('./weweb-server.config.json', 'utf8'))
         const pagesMap = {} as any
