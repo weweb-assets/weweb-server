@@ -95,8 +95,8 @@ export default class PostgreSQL extends Sequelize {
      * @memberof PostgreSQL
      */
     public async importConfig() {
+        //Only import config once (First thread)
         if (process.env.FORK_ID !== '0') return
-        console.log('IMPORT CONFIG')
         if (!fs.existsSync('./weweb-server.config.json')) return
 
         const config = JSON.parse(fs.readFileSync('./weweb-server.config.json', 'utf8'))
