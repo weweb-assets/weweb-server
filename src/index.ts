@@ -6,7 +6,9 @@ import { server } from './core'
 
 
 if (cluster.isPrimary && process.env.WW_ENV !== 'local' && process.env.MULTI_THREAD) {
-    for (const _ of cpus()) cluster.fork()
+    for (let i = 0; i < cpus().length; i++) cluster.fork({ FORK_ID: `${i}` })
 } else {
+    console.log('FORK_ID')
+    console.log(process.env.FORK_ID)
     server.run()
 }
