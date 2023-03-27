@@ -403,12 +403,14 @@ export const publicSetVersionActive = async (req: Request, res: Response, next: 
             return res.status(404).send({ success: false, message: 'FILES_NOT_FOUND' })
         }
 
-        if (req.body.env === 'staging') {
+        if (req.body.env === 'staging' || req.query.env === 'staging') {
             await db.models.designVersion.update({ activeStaging: false }, { where: { designId: req.params.projectId, activeStaging: true } })
-            await designVersion.update({ activeStaging: true })
+            await new Promise(resolve => {setTimeout(resolve, 200)})
+            await db.models.designVersion.update({ activeStaging: true }, { where: { designId: req.params.projectId, cacheVersion: req.params.version } })
         } else {
             await db.models.designVersion.update({ activeProd: false }, { where: { designId: req.params.projectId, activeProd: true } })
-            await designVersion.update({ activeProd: true })
+            await new Promise(resolve => {setTimeout(resolve, 200)})
+            await db.models.designVersion.update({ activeProd: true }, { where: { designId: req.params.projectId, cacheVersion: req.params.version } })
         }
 
         return res.status(200).set({ 'cache-control': 'no-cache' }).send({ success: true })
