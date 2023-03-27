@@ -11,8 +11,6 @@
         "start:dev": "NODE_ENV=development sequelize db:migrate && nodemon --quiet"
     },
     "dependencies": {
-        
-        
         "@supabase/supabase-js": "^1.35.3",
         "auth0": "^3.3.0",
         "aws-sdk": "^2.1101.0",
