@@ -148,7 +148,8 @@ export const checkpoint = async (req: Request, res: Response, next: NextFunction
 
         const { body: design } = await wwmt.get(`${process.env.WEWEB_BACK_URL}/v1/microservice/designs/${req.params.designId}`)
 
-        const maxCheckpoints = design.pricingPlan.features.checkpoints || 0
+        const features = { ...design.features, ...design.customFeatures }
+        const maxCheckpoints = features.checkpoints || 0
         const nbCheckpoints = await db.models.designVersion.count({ where: { designId: req.params.designId, activeCheckpoint: true } })
         if (nbCheckpoints + (!designVersion.activeCheckpoint ? 1 : -1) > maxCheckpoints) return res.status(402).send({ code: 'CHECKPOINTS_LIMIT' })
 

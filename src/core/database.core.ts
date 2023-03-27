@@ -95,13 +95,12 @@ export default class PostgreSQL extends Sequelize {
      * @memberof PostgreSQL
      */
     public async importConfig() {
-        //Only import config once (First thread)
-        if (process.env.FORK_ID !== '0') return
         if (!fs.existsSync('./weweb-server.config.json')) return
 
         const config = JSON.parse(fs.readFileSync('./weweb-server.config.json', 'utf8'))
         const pagesMap = {} as any
         const pluginSettingsMap = {} as any
+
         const designVersion = await db.models.designVersion.create({ ...config, id: undefined, activeProd: false, activeStaging: false })
 
         const [design] = await db.models.design.findOrCreate({
@@ -129,7 +128,9 @@ export default class PostgreSQL extends Sequelize {
                 id: undefined,
             })
         }
+
         await db.models.designVersion.update({ activeProd: false }, { where: { designId: config.designId, activeProd: true } })
+
         await designVersion.update({ activeProd: true })
 
         log.debug(`Successfuly imported weweb-server.config.json for project ${config.designId} version ${config.cacheVersion}`)

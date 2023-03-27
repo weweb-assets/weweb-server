@@ -130,8 +130,8 @@ export default class Website {
         if (!process.env.WEWEB_BACK_URL) return
 
         const { body: design } = await wwmt.get(`${process.env.WEWEB_BACK_URL}/v1/microservice/designs/${designId}`)
-
-        const backups = design.pricingPlan.features.backups || 5
+        const features = { ...design.features, ...design.customFeatures }
+        const backups = features.backups || 5
 
         const designVersionsToDelete = await db.models.designVersion.findAll({
             where: {

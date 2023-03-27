@@ -4,7 +4,6 @@ import * as express from 'express'
 import morgan from 'morgan'
 import routes from '../routes'
 import { log } from '../services'
-import * as Sentry from '@sentry/node'
 import cookieParser from 'cookie-parser'
 const wwmt = require('weweb-microservice-token')
 
@@ -121,21 +120,16 @@ export default class App {
      * @memberof App
      */
     private catchErrors() {
-        if (process.env.WW_ENV && process.env.NODE_ENV === 'production') {
-            Sentry.init({
-                dsn: 'https://02345bc87d4845e894fc09d5300fcc15@o513521.ingest.sentry.io/5615870',
-                tracesSampleRate: 1.0,
-                environment: process.env.WW_ENV || 'prod',
-            })
-        }
+
         this.app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
             log.error(err)
-            if (process.env.WW_ENV) Sentry.captureException(err)
+
+
             return res.status(500).send({ success: false, code: 'INTERNAL_ERROR' })
         })
         process.on('uncaughtException', function (err) {
             log.error(err)
-            if (process.env.WW_ENV) Sentry.captureException(err)
+
         })
     }
 }
