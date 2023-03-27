@@ -33,14 +33,7 @@ export const getFile = async (req: RequestWebsite, res: Response, next: NextFunc
             }
             let file
 
-            // WEWEB
-            if (process.env.HOSTNAME_PREVIEW) {
-                file = await websiteCore.getFileWithCloudfront(`${req.headers['accept-encoding']}`, key)
-            }
-            // SELF-HOSTING
-            else {
                 file = await websiteCore.getFile(key)
-            }
 
             const headers = {
                 'Content-Type': mime.lookup(key),
@@ -90,14 +83,7 @@ export const getDataFile = async (req: RequestWebsite, res: Response, next: Next
 
         let file
 
-        // WEWEB
-        if (process.env.HOSTNAME_PREVIEW) {
-            file = await websiteCore.getFileWithCloudfront(`${req.headers['accept-encoding']}`, key)
-        }
-        // SELF-HOSTING
-        else {
             file = await websiteCore.getFile(key)
-        }
 
         const headers = {
             'Content-Type': mime.lookup(key),
@@ -128,12 +114,6 @@ export const getIndex = async (req: RequestWebsite, res: Response, next: NextFun
     try {
         log.debug(`controllers:website:getIndex ${req.get('origin') || req.get('X-Forwarded-Host') || req.get('host')}${req.url}`)
 
-        //NOT ON SELF-HOST
-        if (process.env.HOSTNAME_PREVIEW && req.finalHost.includes(`-staging.${process.env.HOSTNAME_PREVIEW}`)) {
-            const { body: design } = await wwmt.get(`${process.env.WEWEB_BACK_URL}/v1/microservice/designs/${req.designVersion.designId}`)
-            if (!design.features.staging && !design.customFeatures.staging)
-                return res.set({ 'cache-control': 'no-cache' }).redirect(403, 'http://www.weweb.io/pricing')
-        }
 
         async function returnPageData(langParam: string) {
             //Fetch new version
@@ -148,26 +128,10 @@ export const getIndex = async (req: RequestWebsite, res: Response, next: NextFun
                 `${req.designVersion.cacheVersion}`
             )}/${lang}${path}`
 
-            //NOT ON SELF-HOST
-            if (process.env.HOSTNAME_PREVIEW) {
-                //WEWEB-PREVIEW DOMAIN
-                if (req.get('host').indexOf(`.${process.env.HOSTNAME_PREVIEW}`) !== -1) {
-                    res.set({
-                        'X-Robots-Tag': 'noindex',
-                    })
-                }
-            }
 
             let file
 
-            // WEWEB
-            if (process.env.HOSTNAME_PREVIEW) {
-                file = await websiteCore.getFileWithCloudfront(`${req.headers['accept-encoding']}`, key)
-            }
-            // SELF-HOSTING
-            else {
                 file = await websiteCore.getFile(key)
-            }
 
             const headers = {
                 'Content-Type': mime.lookup(key),

@@ -7,6 +7,7 @@ import pageRoute from './page.route'
 import redirectionRoute from './redirection.route'
 import pluginSettingsRoute from './pluginSettings.route'
 import cmsDataSetRoute from './cmsDataSet.route'
+import openaiRoute from './openai.route'
 import utilsRoute from './utils.route'
 import websiteRoute from './website.route'
 
@@ -19,6 +20,7 @@ export default (app: Application) => {
     redirectionRoute(app)
     pluginSettingsRoute(app)
     cmsDataSetRoute(app)
+    openaiRoute(app)
     utilsRoute(app)
     websiteRoute(app)
 }
