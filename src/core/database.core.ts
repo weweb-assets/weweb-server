@@ -102,6 +102,7 @@ export default class PostgreSQL extends Sequelize {
         const config = JSON.parse(fs.readFileSync('./weweb-server.config.json', 'utf8'))
         const pagesMap = {} as any
         const pluginSettingsMap = {} as any
+        
         const designVersion = await db.models.designVersion.create({ ...config, id: undefined, activeProd: false, activeStaging: false })
 
         const [design] = await db.models.design.findOrCreate({
@@ -129,6 +130,7 @@ export default class PostgreSQL extends Sequelize {
                 id: undefined,
             })
         }
+        
         await db.models.designVersion.update({ activeProd: false }, { where: { designId: config.designId, activeProd: true } })
         await designVersion.update({ activeProd: true })
 

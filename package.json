@@ -1,6 +1,6 @@
 {
     "name": "weweb-preview",
-    "version": "1.2.4",
+    "version": "1.2.7",
     "description": "Description",
     "main": "./dist/index.js",
     "scripts": {
@@ -11,10 +11,10 @@
         "start:dev": "NODE_ENV=development sequelize db:migrate && nodemon --quiet"
     },
     "dependencies": {
-        "@sentry/node": "^6.16.1",
-        "@sentry/tracing": "^6.16.1",
+        
+        
         "@supabase/supabase-js": "^1.35.3",
-        "auth0": "^2.35.1",
+        "auth0": "^3.3.0",
         "aws-sdk": "^2.1101.0",
         "axios": "^0.27.2",
         "body-parser": "^1.19.0",
@@ -31,12 +31,12 @@
         "pg": "^8.5.1",
         "pino": "^8.5.0",
         "pino-pretty": "^9.1.0",
-        "sequelize": "^6.5.0",
-        "sequelize-cli": "^6.2.0",
-        "weweb-microservice-token": "^0.1.9"
+        "sequelize": "^6.29.3",
+        "sequelize-cli": "^6.6.0",
+        "weweb-microservice-token": "0.1.15"
     },
     "devDependencies": {
-        "@types/auth0": "^2.33.3",
+        "@types/auth0": "^2.35.11",
         "@types/cookie-parser": "^1.4.2",
         "@types/cors": "^2.8.10",
         "@types/debug": "^4.1.6",
@@ -44,7 +44,7 @@
         "@types/morgan": "^1.9.2",
         "@types/openid-client": "^3.7.0",
         "@types/pino-pretty": "^4.7.5",
-        "@types/sequelize": "^4.28.9",
+        "@types/sequelize": "^4.28.14",
         "nodemon": "^2.0.9",
         "ts-node": "^10.8.0",
         "typescript": "^4.7.2"

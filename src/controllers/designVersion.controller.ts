@@ -148,7 +148,8 @@ export const checkpoint = async (req: Request, res: Response, next: NextFunction
 
         const { body: design } = await wwmt.get(`${process.env.WEWEB_BACK_URL}/v1/microservice/designs/${req.params.designId}`)
 
-        const maxCheckpoints = design.pricingPlan.features.checkpoints || 0
+        const features = { ...design.features, ...design.customFeatures }
+        const maxCheckpoints = features.checkpoints || 0
         const nbCheckpoints = await db.models.designVersion.count({ where: { designId: req.params.designId, activeCheckpoint: true } })
         if (nbCheckpoints + (!designVersion.activeCheckpoint ? 1 : -1) > maxCheckpoints) return res.status(402).send({ code: 'CHECKPOINTS_LIMIT' })
 
@@ -405,11 +406,15 @@ export const publicSetVersionActive = async (req: Request, res: Response, next: 
 
         if (req.body.env === 'staging' || req.query.env === 'staging') {
             await db.models.designVersion.update({ activeStaging: false }, { where: { designId: req.params.projectId, activeStaging: true } })
-            await new Promise(resolve => {setTimeout(resolve, 200)})
+            await new Promise(resolve => {
+                setTimeout(resolve, 200)
+            })
             await db.models.designVersion.update({ activeStaging: true }, { where: { designId: req.params.projectId, cacheVersion: req.params.version } })
         } else {
             await db.models.designVersion.update({ activeProd: false }, { where: { designId: req.params.projectId, activeProd: true } })
-            await new Promise(resolve => {setTimeout(resolve, 200)})
+            await new Promise(resolve => {
+                setTimeout(resolve, 200)
+            })
             await db.models.designVersion.update({ activeProd: true }, { where: { designId: req.params.projectId, cacheVersion: req.params.version } })
         }
 
