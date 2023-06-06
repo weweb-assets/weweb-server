@@ -8,6 +8,7 @@ import redirectionRoute from './redirection.route'
 import pluginSettingsRoute from './pluginSettings.route'
 import cmsDataSetRoute from './cmsDataSet.route'
 import openaiRoute from './openai.route'
+import smartsuite from './smartsuite.route'
 import utilsRoute from './utils.route'
 import websiteRoute from './website.route'
 
@@ -21,6 +22,7 @@ export default (app: Application) => {
     pluginSettingsRoute(app)
     cmsDataSetRoute(app)
     openaiRoute(app)
+    smartsuite(app)
     utilsRoute(app)
     websiteRoute(app)
 }

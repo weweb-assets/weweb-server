@@ -31,6 +31,10 @@ export default (app: Application) => {
 
     app.route(`${utils.getServerPath()}/admin/designs/:designId/previews`).get(designVersionCtrl.getAllRoutes)
     app.route(`${utils.getServerPath()}/microservice/projects/:projectId/versions/:version/config`).get(wwmt.verifyWwServiceToken, designVersionCtrl.getConfig)
+    app.route(`${utils.getServerPath()}/public/v1/projects/:projectId/versions` as string).get(
+        publicAccessMdlw.ensurePublicAccess,
+        designVersionCtrl.publicGetVersions
+    )
     app.route(`${utils.getServerPath()}/public/v1/projects/:projectId/versions/:version/active` as string).post(
         publicAccessMdlw.ensurePublicAccess,
         designVersionCtrl.publicSetVersionActive

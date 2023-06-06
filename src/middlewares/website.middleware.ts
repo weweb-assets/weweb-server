@@ -159,6 +159,7 @@ export const ensurePage = async (req: RequestWebsite, res: Response, next: NextF
 
         req.params.path = req.params.path || ''
 
+        //Add trailling /
         if (req.params.path !== '' && !req.params.path.endsWith('/')) {
             let redirectUrl = req.originalUrl
             if (req.originalUrl.indexOf('?') !== -1) redirectUrl = redirectUrl.replace('?', '/?')
@@ -168,6 +169,21 @@ export const ensurePage = async (req: RequestWebsite, res: Response, next: NextF
             while (redirectUrl.indexOf('//') !== -1) redirectUrl = redirectUrl.replace('//', '/')
 
             return res.set({ 'cache-control': 'no-cache' }).redirect(301, redirectUrl)
+        }
+
+        //Check default lang
+        if (!req.params.lang) {
+            const langs = req.designVersion.langs
+            let defaultLang = null
+            for (const lang of langs) {
+                if (lang.isDefaultPath) defaultLang = lang.lang
+            }
+
+            if (defaultLang) {
+                //Add default lang at the start of the path
+                const redirectUrl = `/${defaultLang}${req.originalUrl.startsWith('/') ? req.originalUrl : `/${req.originalUrl}`}`
+                return res.set({ 'cache-control': 'no-cache' }).redirect(301, redirectUrl)
+            }
         }
 
         const pathWithoutTrailing = req.params.path !== '' ? req.params.path.slice(0, -1) : ''
@@ -222,7 +238,7 @@ export const ensurePage = async (req: RequestWebsite, res: Response, next: NextF
 }
 
 const generateDynamicPaths = (array: any, isDeep: boolean): any => {
-    if (array.length === 1) return isDeep ? [array[0], ':param'] : [[array[0], ':param']]
+    if (array.length === 1) return isDeep ? [array[0], ':param'] : [[array[0]]]
     const result = []
     const arrayTmp = generateDynamicPaths(array.slice(1), true)
     for (const item of arrayTmp) {

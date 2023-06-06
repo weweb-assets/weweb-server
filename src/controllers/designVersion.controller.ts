@@ -384,6 +384,32 @@ export const getConfig = async (req: Request, res: Response, next: NextFunction)
 }
 
 /**
+ * Get versions.
+ * @param req Request
+ * @param res Response
+ */
+export const publicGetVersions = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        log.debug('controllers:designVersion:publicGetVersions')
+
+        if (!utils.isDefined([req.params.projectId])) return res.status(400).send()
+
+        const designVersions = await db.models.designVersion.findAll({
+            where: { designId: req.params.projectId },
+            attributes: ['cacheVersion', 'activeProd', 'activeStaging'],
+        })
+
+        const versionsList = designVersions.map(designVersion => {
+            return { version: designVersion.cacheVersion, prod: designVersion.activeProd, staging: designVersion.activeStaging }
+        })
+
+        return res.status(200).set({ 'cache-control': 'no-cache' }).send({ success: true, data: versionsList })
+    } catch (err) /* istanbul ignore next */ {
+        return next(err)
+    }
+}
+
+/**
  * Set version as active.
  * @param req Request
  * @param res Response
