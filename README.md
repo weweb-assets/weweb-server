@@ -146,6 +146,8 @@ You can generate a new Private Key at any time but this will invalidate the old 
 
 [Activate a version in you weweb-server](#activate-a-version-in-you-weweb-server)
 
+[List versions of a project in you weweb-server](#list-versions-of-a-project-in-you-weweb-server)
+
 #### Typical auto deploy script
 
 A typical auto deploy script should be :
