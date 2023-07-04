@@ -53,6 +53,8 @@ export default class Website {
      * @memberof Server
      */
     public async getFile(key: string) {
+        if (key.indexOf('../') !== -1 || key.indexOf('/./') !== -1) throw new Error('../ and /./ are not allowed in key')
+
         //From S3
         if (s3.isConnected()) {
             const file = await s3.getSignedFileFromS3Websites(key)
@@ -60,7 +62,7 @@ export default class Website {
             return file
         }
         //From local storage
-        else if (key.startsWith('/') || key.startsWith('./')) {
+        else if ((process.env.FILES_PATH.startsWith('./') && key.startsWith('/')) || key.startsWith('./')) {
             const file = fs.readFileSync(key)
             return {
                 data: file,

@@ -1,6 +1,6 @@
 {
     "name": "weweb-preview",
-    "version": "1.2.8",
+    "version": "1.2.9",
     "description": "Description",
     "main": "./dist/index.js",
     "scripts": {
@@ -31,7 +31,7 @@
         "pg": "^8.5.1",
         "pino": "^8.5.0",
         "pino-pretty": "^9.1.0",
-        "sequelize": "^6.29.3",
+        "sequelize": "^6.32.1",
         "sequelize-cli": "^6.6.0",
         "weweb-microservice-token": "0.1.15"
     },
