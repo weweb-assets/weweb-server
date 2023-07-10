@@ -62,7 +62,7 @@ export default class Website {
             return file
         }
         //From local storage
-        else if ((process.env.FILES_PATH.startsWith('./') && key.startsWith('/')) || key.startsWith('./')) {
+        else if (process.env.FILES_PATH.startsWith('./')) {
             const file = fs.readFileSync(key)
             return {
                 data: file,
