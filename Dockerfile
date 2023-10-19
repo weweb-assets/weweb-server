@@ -9,7 +9,7 @@ RUN npm run build
 
 #============ EXPOSE PORTS ============
 EXPOSE 80
-
+EXPOSE 3161
 
 #============= START CMD ==============
 CMD npm run start

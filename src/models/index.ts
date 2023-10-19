@@ -8,6 +8,7 @@ import * as redirection from './redirection.model'
 import * as pluginSettings from './pluginSettings.model'
 import * as cmsDataSet from './cmsDataSet.model'
 import * as design from './design.model'
+import * as pageMetadata from './pageMetadata.model'
 
 /*=============================================m_ÔÔ_m=============================================\
     Initialize Models
@@ -19,6 +20,7 @@ export default (sequelize: Sequelize) => {
     pluginSettings.init(sequelize)
     cmsDataSet.init(sequelize)
     design.init(sequelize)
+    pageMetadata.init(sequelize)
 }
 
 /*=============================================m_ÔÔ_m=============================================\
@@ -31,6 +33,7 @@ export type models = {
     pluginSettings: pluginSettings.PluginSettingsStatic
     cmsDataSet: cmsDataSet.CmsDataSetStatic
     design: design.DesignStatic
+    pageMetadata: pageMetadata.PageMetadataStatic
 }
 
-export { page, redirection, designVersion, pluginSettings, cmsDataSet, design }
+export { page, redirection, designVersion, pluginSettings, cmsDataSet, design, pageMetadata }

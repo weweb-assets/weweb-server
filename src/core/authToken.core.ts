@@ -31,13 +31,15 @@ export default class AuthToken {
     }
 
     public async ensureAuth(req: RequestWebsite, res: Response, settings: PluginSettings, options: any = {}) {
-        const { userEndpoint, refreshTokenEndpoint, refreshFieldRequest, refreshFieldResponse, type, name } = settings.publicData
+        const { userEndpoint, refreshTokenEndpoint, refreshFieldRequest, refreshFieldResponse, type, name, refreshType = 'custom-body' } = settings.publicData
 
         try {
             let accessToken = req.cookies['ww-auth-access-token']
             const refreshToken = req.cookies['ww-auth-refresh-token']
             if (refreshTokenEndpoint) {
-                const { data } = await axios.post(refreshTokenEndpoint, { [refreshFieldRequest]: refreshToken })
+                const headers = this.buildHeader(refreshType, refreshFieldRequest, refreshToken)
+                const body = refreshType === 'custom-body' ? { [refreshFieldRequest]: refreshToken } : {}
+                const { data } = await axios.post(refreshTokenEndpoint, body, { headers })
                 accessToken = _.get(data, refreshFieldResponse, data)
                 res.cookie('ww-auth-access-token', accessToken)
             }

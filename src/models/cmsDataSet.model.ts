@@ -13,7 +13,7 @@ export interface CmsDataSet {
     pluginId: string
     type: string
     config: Object
-    limit: number
+    limit: number | Object
     mode: string
     filter: Object
     sort: Object
@@ -79,7 +79,7 @@ export const init = (sequelize: Sequelize): CmsDataSetStatic => {
                 allowNull: true,
             },
             limit: {
-                type: DataTypes.INTEGER,
+                type: DataTypes.JSONB,
                 allowNull: true,
             },
             mode: {

@@ -16,9 +16,14 @@ export default (app: Application) => {
         websiteMdwl.ensureWebsite,
         websiteMdwl.ensurePageFromId,
         websiteMdwl.ensureAuth,
+        websiteMdwl.ensureCacheExpired,
         websiteCtrl.getDataFile
     )
-    app.route(`${utils.getServerPath()}/:path(*.*)`).get(websiteMdwl.ensureWebsite, websiteCtrl.getFile)
+    app.route(`${utils.getServerPath()}/:path(*.*)`).get(
+        websiteMdwl.ensureWebsite, 
+        websiteMdwl.ensureCacheExpired,
+        websiteCtrl.getFile
+    )
     app.route(`${utils.getServerPath()}/:lang(${LANGS})?/:path(*)`).get(
         websiteMdwl.ensureWebsite,
         websiteMdwl.ensureRedirection,
@@ -29,6 +34,7 @@ export default (app: Application) => {
         },
         websiteMdwl.addViewToDesign,
         websiteMdwl.ensureAuth,
+        websiteMdwl.ensureCacheExpired,
         websiteCtrl.getIndex
     )
 }
