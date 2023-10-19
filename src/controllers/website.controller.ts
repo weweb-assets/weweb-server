@@ -113,8 +113,7 @@ export const getDataFile = async (req: RequestWebsite, res: Response, next: Next
             let path = `${req.query?.path}`
             if (path.startsWith('/')) path = path.substring(1)
             if (path.endsWith('/')) path = path.slice(0, -1)
-
-            pageJSON = await websiteCore.replacePageMetadataInJSON(req.design, path, pageJSON)
+            
         }
 
         return res.status(200).set(headers).send(pageJSON)
@@ -173,7 +172,6 @@ export const getIndex = async (req: RequestWebsite, res: Response, next: NextFun
             if (cleanPath.startsWith('/')) cleanPath = cleanPath.substring(1)
             if (cleanPath.endsWith('/')) cleanPath = cleanPath.slice(0, -1)
 
-            html = await websiteCore.replacePageMetadataInHTML(req.design, cleanPath, html)
 
             return res
                 .status(req.is404 ? 404 : 200)
