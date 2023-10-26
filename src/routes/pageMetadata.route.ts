@@ -8,3 +8,5 @@ const wwmt = require('weweb-microservice-token')
     Page metadata Route
 \================================================================================================*/
 
+export default (app: Application) => {
+}
