@@ -15,7 +15,7 @@ module.exports = {
     },
     production: {
         username: process.env.RDS_USERNAME || process.env.DB_USERNAME,
-        password: process.env.RDS_PASSWORD || process.env.DB_PASSWORD,
+        password: process.env.RDS_PASSWORD || process.env.DB_PASSWORD || (process.env.RDS_CREDENTIALS ? JSON.parse(process.env.RDS_CREDENTIALS || "{}").password : undefined),
         database: process.env.RDS_DB_NAME || process.env.DB_NAME,
         host: process.env.RDS_HOSTNAME || process.env.DB_HOSTNAME,
         port: process.env.RDS_PORT || process.env.DB_PORT,

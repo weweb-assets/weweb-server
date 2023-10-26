@@ -13,6 +13,8 @@ import { log } from '../services'
 export const ensurePublicAccess = async (req: RequestWebsite, res: Response, next: NextFunction) => {
     try {
         log.debug('ensurePublicAccess')
+        if (!process.env.PRIVATE_KEY) return res.status(400).send()
+
         if (!req.headers['authorization']) return res.status(401).send()
 
         // Check has token

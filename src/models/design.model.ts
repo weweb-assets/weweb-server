@@ -9,6 +9,8 @@ export interface Design {
     designId: string
     name: string
     stagingName: string
+    sitemapXml: string
+    robotsTxt: string
     readonly createdAt: Date
     readonly updatedAt: Date
 }
@@ -54,6 +56,14 @@ export const init = (sequelize: Sequelize): DesignStatic => {
                 type: DataTypes.STRING,
                 allowNull: true,
             },
+            sitemapXml: {
+                type: DataTypes.TEXT,
+                allowNull: true,
+            },
+            robotsTxt: {
+                type: DataTypes.TEXT,
+                allowNull: true,
+            },
         },
         {
             indexes: [
@@ -72,6 +82,8 @@ export const init = (sequelize: Sequelize): DesignStatic => {
             designId: this.designId,
             name: this.name,
             stagingName: this.stagingName,
+            sitemapXml: this.sitemapXml,
+            robotsTxt: this.robotsTxt,
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
         }

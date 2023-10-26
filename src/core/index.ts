@@ -18,7 +18,7 @@ const app = new App()
 const db = new Database(
     process.env.RDS_DB_NAME || process.env.DB_NAME,
     process.env.RDS_USERNAME || process.env.DB_USERNAME,
-    process.env.RDS_PASSWORD || process.env.DB_PASSWORD,
+    process.env.RDS_PASSWORD || process.env.DB_PASSWORD || (process.env.RDS_CREDENTIALS ? JSON.parse(process.env.RDS_CREDENTIALS || "{}").password : undefined),
     process.env.RDS_HOSTNAME || process.env.DB_HOSTNAME,
     parseInt(process.env.RDS_PORT || process.env.DB_PORT || '5432'),
     process.env.RDS_SCHEMA || process.env.DB_SCHEMA || 'public',

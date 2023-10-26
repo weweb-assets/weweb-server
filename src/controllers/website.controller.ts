@@ -26,21 +26,36 @@ export const getFile = async (req: RequestWebsite, res: Response, next: NextFunc
                 `${req.designVersion.cacheVersion}`
             )}/${path}`
 
-            const noCacheFiles = ['robots.txt', 'sitemap.xml']
-            let cacheControl = 'public, max-age=31536000'
-            if (noCacheFiles.includes(lastPath)) {
-                cacheControl = 'no-cache'
-            }
             let file
 
                 file = await websiteCore.getFile(key)
 
+            const noCacheFiles = ['robots.txt', 'sitemap.xml']
+            let cacheControl = 'public, max-age=31536000'
+            if (noCacheFiles.includes(lastPath)) {
+                cacheControl = 'public, max-age=1'
+
+                if (lastPath === 'sitemap.xml' && req.design.sitemapXml?.length) {
+                    file = {
+                        data: req.design.sitemapXml,
+                        'Content-Length': req.design.sitemapXml.length,
+                    }
+                }
+
+                if (lastPath === 'robots.txt' && req.design.robotsTxt?.length) {
+                    file = {
+                        data: req.design.robotsTxt,
+                        'Content-Length': req.design.robotsTxt.length,
+                    }
+                }
+            }
+
             const headers = {
-                'Content-Type': mime.lookup(key),
+                'Content-Type': lastPath === 'sitemap.xml' ? 'application/rss+xml' : mime.lookup(key),
                 'Content-Length': file['ContentLength'],
                 'Content-Encoding': file['ContentEncoding'],
                 ETag: file['ETag'],
-                'last-modified': new Date(req.designVersion.createdAt).toUTCString(),
+                'last-modified': req.lastModified,
                 'accept-ranges': file['AcceptRanges'],
                 'cache-control': cacheControl,
             }
@@ -76,11 +91,6 @@ export const getDataFile = async (req: RequestWebsite, res: Response, next: Next
             `${req.designVersion.cacheVersion}`
         )}/public/data/${pageId}.json`
 
-        let cacheControl = 'public, max-age=31536000'
-        if (req.isPrivate) {
-            cacheControl = 'no-cache'
-        }
-
         let file
 
             file = await websiteCore.getFile(key)
@@ -90,14 +100,23 @@ export const getDataFile = async (req: RequestWebsite, res: Response, next: Next
             'Content-Length': file['ContentLength'],
             'Content-Encoding': file['ContentEncoding'],
             ETag: file['ETag'],
-            'last-modified': new Date(req.designVersion.createdAt).toUTCString(),
+            'last-modified': req.lastModified,
             'accept-ranges': file['AcceptRanges'],
-            'cache-control': cacheControl,
+            'cache-control': 'public, max-age=1',
         }
 
         if (!file['ContentEncoding']) delete headers['Content-Encoding']
 
-        return res.status(200).set(headers).send(file.data)
+        let pageJSON = file.data.toString('utf-8')
+
+        if (req.query?.path) {
+            let path = `${req.query?.path}`
+            if (path.startsWith('/')) path = path.substring(1)
+            if (path.endsWith('/')) path = path.slice(0, -1)
+            
+        }
+
+        return res.status(200).set(headers).send(pageJSON)
     } catch (err) /* istanbul ignore next */ {
         log.error(`ERROR controllers:website:getDataFile ${req.get('origin') || req.get('X-Forwarded-Host') || req.get('host')}${req.url}`)
         log.error(err)
@@ -117,16 +136,18 @@ export const getIndex = async (req: RequestWebsite, res: Response, next: NextFun
 
         async function returnPageData(langParam: string) {
             //Fetch new version
-            const path =
-                req.designVersion.homePageId === req.page.pageId
-                    ? 'index.html'
-                    : `${req.page.paths[langParam || 'default'] || req.page.paths.default}/index.html`
-            const lang = langParam ? `${langParam}/` : ''
-            const key = `${websiteCore.getCachePath(
-                req.designVersion.designId,
-                req.designVersion.designVersionId,
-                `${req.designVersion.cacheVersion}`
-            )}/${lang}${path}`
+            const path = req.designVersion.homePageId === req.page.pageId ? '' : `${req.page.paths[langParam || 'default'] || req.page.paths.default}`
+            const lang = langParam ? `${langParam}` : ''
+            let pathWithLang
+            if (lang.length) {
+                if (path.length) pathWithLang = `${lang}/${path}`
+                else pathWithLang = lang
+            } else {
+                pathWithLang = path
+            }
+            const key = `${websiteCore.getCachePath(req.designVersion.designId, req.designVersion.designVersionId, `${req.designVersion.cacheVersion}`)}/${
+                pathWithLang.length ? pathWithLang + '/' : ''
+            }index.html`
 
 
             let file
@@ -138,17 +159,24 @@ export const getIndex = async (req: RequestWebsite, res: Response, next: NextFun
                 'Content-Length': file['ContentLength'],
                 'Content-Encoding': file['ContentEncoding'],
                 ETag: file['ETag'],
-                'last-modified': new Date(req.designVersion.createdAt).toUTCString(),
+                'last-modified': req.lastModified,
                 'accept-ranges': file['AcceptRanges'],
-                'cache-control': 'no-cache',
+                'cache-control': 'public, max-age=1',
             }
 
             if (!file['ContentEncoding']) delete headers['Content-Encoding']
 
+            let html = file.data.toString('utf-8')
+
+            let cleanPath = `${req.path}`
+            if (cleanPath.startsWith('/')) cleanPath = cleanPath.substring(1)
+            if (cleanPath.endsWith('/')) cleanPath = cleanPath.slice(0, -1)
+
+
             return res
                 .status(req.is404 ? 404 : 200)
                 .set(headers)
-                .send(file.data)
+                .send(html)
         }
 
         try {

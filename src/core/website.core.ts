@@ -6,6 +6,7 @@ import axios from 'axios'
 const fs = require('fs-extra')
 const mime = require('mime-types')
 const wwmt = require('weweb-microservice-token')
+const { JSDOM } = require('jsdom')
 
 /**
  * Website core.
@@ -53,6 +54,9 @@ export default class Website {
      * @memberof Server
      */
     public async getFile(key: string) {
+
+        if (key.indexOf('../') !== -1 || key.indexOf('/./') !== -1) throw new Error('../ and /./ are not allowed in key')
+
         //From S3
         if (s3.isConnected()) {
             const file = await s3.getSignedFileFromS3Websites(key)
@@ -60,7 +64,7 @@ export default class Website {
             return file
         }
         //From local storage
-        else if (key.startsWith('/') || key.startsWith('./')) {
+        else if (process.env.FILES_PATH.startsWith('./')) {
             const file = fs.readFileSync(key)
             return {
                 data: file,
@@ -105,6 +109,7 @@ export default class Website {
             AcceptRanges: file.headers['accept-ranges'],
         }
     }
+
 
     /**
      * Get file from S3 or file storage

@@ -82,11 +82,14 @@ export const ensureWebsite = async (req: RequestWebsite, res: Response, next: Ne
 
         if (!req.designVersion) return res.status(404).set({ 'cache-control': 'no-cache' }).send()
 
+        req.design = await db.models.design.findOne({ where: { designId: req.designVersion.designId } })
+
         return next()
     } catch (err) /* istanbul ignore next */ {
         return next(err)
     }
 }
+
 
 /**
  * Add View to Design.
@@ -327,18 +330,41 @@ export const ensureAuth = async (req: RequestWebsite, res: Response, next: NextF
         let redirectUrl = `${path}${queries.length ? `?${queries.join('&')}` : ''}`
         if (!redirectUrl.startsWith('/')) redirectUrl = `/${redirectUrl}`
 
+        if(req.headers['x-weweb-cookies']) {
+            try {
+                const cookies = JSON.parse(`${req.headers['x-weweb-cookies']}`)
+                for(let key in cookies) {
+                    req.cookies[key] = cookies[key]
+                }
+            }
+            catch(err) {
+                log.error(err)
+            }
+            
+        }
+
         let isAuth = false
         switch (pluginSettings.pluginId) {
             case AUTH0_PLUGIN_ID:
                 isAuth = await auth0Core.ensureAuth(req, res, pluginSettings, redirectUrl)
                 break
             case XANO_PLUGIN_ID:
-                pluginSettings.publicData.userEndpoint = pluginSettings.publicData.getMeEndpoint
+                const url = new URL(pluginSettings.publicData.getMeEndpoint)
+                url.hostname = pluginSettings.publicData.customDomain || pluginSettings.publicData.domain || url.hostname
+                pluginSettings.publicData.userEndpoint = url.href
                 pluginSettings.publicData.type = `bearer-token`
                 const xDataSource = req.finalHost.includes(`-staging.${process.env.HOSTNAME_PREVIEW}`)
                     ? pluginSettings.publicData.xDataSourceStaging
                     : pluginSettings.publicData.xDataSourceProd
-                isAuth = await authTokenCore.ensureAuth(req, res, pluginSettings, { headers: xDataSource ? { 'X-Data-Source': xDataSource } : {} })
+                const xBranch = req.finalHost.includes(`-staging.${process.env.HOSTNAME_PREVIEW}`)
+                    ? pluginSettings.publicData.xBranchStaging
+                    : pluginSettings.publicData.xBranchProd
+                isAuth = await authTokenCore.ensureAuth(req, res, pluginSettings, {
+                    headers: {
+                        ...(xDataSource ? { 'X-Data-Source': xDataSource } : {}),
+                        ...(xBranch ? { 'X-Branch': xBranch } : {}),
+                    },
+                })
                 break
             case AUTH_TOKEN_PLUGIN_ID:
                 isAuth = await authTokenCore.ensureAuth(req, res, pluginSettings)
@@ -355,12 +381,43 @@ export const ensureAuth = async (req: RequestWebsite, res: Response, next: NextF
         }
 
         if (!isAuth) {
+            redirectUrl = `${redirectUrl}${queries.length ? '&' : '?'}_source=${req.path}`
             return req.isIndexHtml
                 ? res.set({ 'cache-control': 'no-cache' }).redirect(redirectUrl)
                 : res.status(401).set({ 'cache-control': 'no-cache' }).send({ redirectUrl })
         }
 
         req.isPrivate = true
+
+        return next()
+    } catch (err) /* istanbul ignore next */ {
+        return next(err)
+    }
+}
+
+/**
+ * Check if cache expired and need new cache.
+ * @param req Request
+ * @param res Response
+ * @param next NextFunction
+ */
+export const ensureCacheExpired = async (req: RequestWebsite, res: Response, next: NextFunction) => {
+    try {
+        log.debug(`middlewares:website:ensureCacheExpired`)
+
+        //Get last designVersion modification date
+        req.lastModified = req.designVersion.updatedAt
+
+        //Get If-Modified-Since header
+        const ifModifiedSinceHeader = req.get('If-Modified-Since') || req.get('last-modified') || req.get('Last-Modified')
+        if(!ifModifiedSinceHeader) return next()
+
+        //Convert to date and check if valid
+        const ifModifiedSince = new Date(ifModifiedSinceHeader)
+        if(isNaN(ifModifiedSince.getTime())) return next()
+
+        //Check if designVersion is updated -> only compare seconds
+        if(Math.floor(req.lastModified.getTime() / 1000) === Math.floor(ifModifiedSince.getTime() / 1000)) return res.status(304).send()
 
         return next()
     } catch (err) /* istanbul ignore next */ {

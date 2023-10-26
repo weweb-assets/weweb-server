@@ -41,6 +41,7 @@ export const createDesignVersion = async (req: Request, res: Response, next: Nex
             cacheVersion: req.body.cacheVersion,
             homePageId: req.body.homePageId,
             langs: req.body.langs,
+            isLimited: req.body.isLimited,
         })
 
         const design = await db.models.design.findOne({ where: { designId: req.params.designId } })

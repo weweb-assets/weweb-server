@@ -1,6 +1,6 @@
 {
     "name": "weweb-preview",
-    "version": "1.2.8",
+    "version": "1.2.10",
     "description": "Description",
     "main": "./dist/index.js",
     "scripts": {
@@ -8,7 +8,7 @@
         "build": "tsc",
         "prestart": "node_modules/sequelize-cli/lib/sequelize db:migrate",
         "start": "node --inspect=0.0.0.0:3161 ./dist/index.js",
-        "start:dev": "NODE_ENV=development sequelize db:migrate && nodemon --quiet"
+        "start:dev": "NODE_ENV=development sequelize db:migrate && nodemon --quiet  --inspect=0.0.0.0:3161"
     },
     "dependencies": {
         
@@ -25,14 +25,15 @@
         "dotenv": "^16.0.2",
         "express": "^4.17.1",
         "fs-extra": "^10.1.0",
+        "jsdom": "^22.1.0",
         "mime-types": "^2.1.35",
         "morgan": "^1.10.0",
         "openid-client": "^5.1.9",
         "pg": "^8.5.1",
         "pino": "^8.5.0",
         "pino-pretty": "^9.1.0",
-        "sequelize": "^6.29.3",
-        "sequelize-cli": "^6.6.0",
+        "sequelize": "^6.32.1",
+        "sequelize-cli": "^6.6.1",
         "weweb-microservice-token": "0.1.15"
     },
     "devDependencies": {
@@ -45,7 +46,7 @@
         "@types/openid-client": "^3.7.0",
         "@types/pino-pretty": "^4.7.5",
         "@types/sequelize": "^4.28.14",
-        "nodemon": "^2.0.9",
+        "nodemon": "^3.0.1",
         "ts-node": "^10.8.0",
         "typescript": "^4.7.2"
     },

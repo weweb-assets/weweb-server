@@ -20,6 +20,7 @@ export interface DesignVersion {
     activeStaging: boolean
     activeCheckpoint: boolean
     activeBackup: boolean
+    isLimited: boolean
     readonly createdAt: Date
     readonly updatedAt: Date
 }
@@ -93,6 +94,11 @@ export const init = (sequelize: Sequelize): DesignVersionStatic => {
                 allowNull: false,
                 defaultValue: false,
             },
+            isLimited: {
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
+                defaultValue: false,
+            },
         },
         {
             indexes: [
@@ -148,6 +154,7 @@ export const init = (sequelize: Sequelize): DesignVersionStatic => {
             activeCheckpoint: this.activeCheckpoint,
             activeBackup: this.activeBackup,
             langs: this.langs,
+            isLimited: this.isLimited,
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
         }
