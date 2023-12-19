@@ -1,6 +1,6 @@
 {
     "name": "weweb-preview",
-    "version": "1.2.11",
+    "version": "1.2.12",
     "description": "Description",
     "main": "./dist/index.js",
     "scripts": {
@@ -30,8 +30,8 @@
         "morgan": "^1.10.0",
         "openid-client": "^5.1.9",
         "pg": "^8.5.1",
-        "pino": "^8.5.0",
-        "pino-pretty": "^9.1.0",
+        "pino": "^8.17.1",
+        "pino-pretty": "^10.3.0",
         "sequelize": "^6.32.1",
         "sequelize-cli": "^6.6.1",
         "weweb-microservice-token": "0.1.15"
