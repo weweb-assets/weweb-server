@@ -50,8 +50,8 @@ export default class SupabaseAuth {
 
     public async ensureAuth(req: RequestWebsite, res: Response, settings: PluginSettings) {
         const { projectUrl } = settings.publicData
-        const { apiKey } = settings.privateData
         const { roleTable, userRoleTable } = settings.publicData
+        const apiKey = settings.privateData.apiKey || settings.publicData.apiKey
 
         try {
             const accessToken = req.cookies[`sb-access-token`]

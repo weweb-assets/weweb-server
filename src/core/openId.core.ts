@@ -23,7 +23,14 @@ export default class OpenId {
             const { clientSecret } = settings.privateData
 
             const cookieName = encodeURIComponent(`oidc.user:${domain}:${clientId}`)
-            const tokens = JSON.parse(req.cookies[cookieName] || '{}')
+            
+            let tokensCookie = req.cookies[cookieName] || '{}'
+
+            if(tokensCookie.startsWith('%')) {
+                tokensCookie = decodeURIComponent(tokensCookie)
+            }
+            
+            const tokens = JSON.parse(tokensCookie)            
 
             const issuer = await Issuer.discover(domain)
             const client = new issuer.Client({
