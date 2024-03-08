@@ -269,7 +269,7 @@ export const getCacheVersions = async (req: Request, res: Response, next: NextFu
 
         if (!req.params.designId) return res.status(400).send({ success: false, code: 'BAD_PARAMS' })
 
-        const designVersions = await db.models.designVersion.findAll({ where: { designId: req.params.designId }, limit: 10, order: [['createdAt', 'DESC']] })
+        const designVersions = await db.models.designVersion.findAll({ where: { designId: req.params.designId }, order: [['createdAt', 'DESC']] })
 
         const cacheVersions = []
         for (const designVersion of designVersions) {

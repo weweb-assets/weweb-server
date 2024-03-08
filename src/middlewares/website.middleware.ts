@@ -305,30 +305,8 @@ export const ensureAuth = async (req: RequestWebsite, res: Response, next: NextF
         })
         if (!pluginSettings) return next()
 
-        const page = await db.models.page.findOne({
-            where: {
-                designVersionId: req.designVersion.id,
-                pageId: pluginSettings.publicData.afterNotSignInPageId,
-            },
-        })
-        if (!page) {
-            return websiteCore.redirectTo404(res)
-        }
-
         const lang = (req.params.lang || req.query.wwlang) as string
         delete req.query.wwlang
-
-        const path =
-            page.pageId === req.designVersion.homePageId
-                ? lang
-                    ? `/${lang}/`
-                    : '/'
-                : lang
-                ? `/${lang}/${page.paths[lang] || page.paths.default}`
-                : `${page.paths.default}`
-        const queries = Object.keys(req.query).map(key => `${key}=${req.query[key]}`)
-        let redirectUrl = `${path}${queries.length ? `?${queries.join('&')}` : ''}`
-        if (!redirectUrl.startsWith('/')) redirectUrl = `/${redirectUrl}`
 
         if(req.headers['x-weweb-cookies']) {
             try {
@@ -346,6 +324,7 @@ export const ensureAuth = async (req: RequestWebsite, res: Response, next: NextF
         let isAuth = false
         switch (pluginSettings.pluginId) {
             case AUTH0_PLUGIN_ID:
+                const { redirectUrl } = await getRedirectUrl(pluginSettings.publicData.afterNotSignInPageId, req.designVersion.homePageId, req.designVersion.id, req.query, lang)
                 isAuth = await auth0Core.ensureAuth(req, res, pluginSettings, redirectUrl)
                 break
             case XANO_PLUGIN_ID:
@@ -381,10 +360,16 @@ export const ensureAuth = async (req: RequestWebsite, res: Response, next: NextF
         }
 
         if (!isAuth) {
-            redirectUrl = `${redirectUrl}${queries.length ? '&' : '?'}_source=${req.path}`
+            const { redirectUrl, hasQueries } = await getRedirectUrl(pluginSettings.publicData.afterNotSignInPageId, req.designVersion.homePageId, req.designVersion.id, req.query, lang)
+            
+            if(!redirectUrl) {
+                return websiteCore.redirectTo404(res)
+            }
+            
+            const _redirectUrl = `${redirectUrl}${hasQueries ? '&' : '?'}_source=${req.path}`
             return req.isIndexHtml
-                ? res.set({ 'cache-control': 'no-cache' }).redirect(redirectUrl)
-                : res.status(401).set({ 'cache-control': 'no-cache' }).send({ redirectUrl })
+                ? res.set({ 'cache-control': 'no-cache' }).redirect(_redirectUrl)
+                : res.status(401).set({ 'cache-control': 'no-cache' }).send({ _redirectUrl })
         }
 
         req.isPrivate = true
@@ -392,6 +377,44 @@ export const ensureAuth = async (req: RequestWebsite, res: Response, next: NextF
         return next()
     } catch (err) /* istanbul ignore next */ {
         return next(err)
+    }
+}
+
+/**
+ * Get Redirect URL.
+ * @param req Request
+ */
+
+const getRedirectUrl = async (afterNotSignInPageId: string, homePageId: string, designVersionId: string, query: any, lang: string) => {
+    let redirectUrl = null     
+    let hasQueries = false
+
+    if(afterNotSignInPageId){
+        const page = await db.models.page.findOne({
+            where: {
+                designVersionId: designVersionId,
+                pageId: afterNotSignInPageId,
+            },
+        })
+        if (page) {
+            const path =
+                page.pageId === homePageId
+                    ? lang
+                        ? `/${lang}/`
+                        : '/'
+                    : lang
+                    ? `/${lang}/${page.paths[lang] || page.paths.default}`
+                    : `${page.paths.default}`
+            const queries = Object.keys(query).map(key => `${key}=${query[key]}`)
+            redirectUrl = `${path}${queries.length ? `?${queries.join('&')}` : ''}`
+            hasQueries = !!queries.length
+            if (!redirectUrl.startsWith('/')) redirectUrl = `/${redirectUrl}`
+        }
+    }
+
+    return {
+        redirectUrl,
+        hasQueries
     }
 }
 
