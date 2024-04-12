@@ -9,4 +9,5 @@ const wwmt = require('weweb-microservice-token')
 \================================================================================================*/
 
 export default (app: Application) => {
+
 }

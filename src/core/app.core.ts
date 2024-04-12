@@ -4,6 +4,7 @@ import * as express from 'express'
 import morgan from 'morgan'
 import routes from '../routes'
 import { log } from '../services'
+
 import cookieParser from 'cookie-parser'
 const wwmt = require('weweb-microservice-token')
 
@@ -121,14 +122,17 @@ export default class App {
      */
     private catchErrors() {
 
+
         this.app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
             log.error(err)
+
 
 
             return res.status(500).send({ success: false, code: 'INTERNAL_ERROR' })
         })
         process.on('uncaughtException', function (err) {
             log.error(err)
+
 
         })
     }

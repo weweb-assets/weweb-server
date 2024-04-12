@@ -7,4 +7,5 @@ import { utils } from '../services'
     Plugin Settings Route
 \================================================================================================*/
 export default (app: Application) => {
+
 }

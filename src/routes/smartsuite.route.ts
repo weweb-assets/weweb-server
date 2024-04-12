@@ -7,4 +7,5 @@ import { utils } from '../services'
     Plugin Smartsuite Route
 \================================================================================================*/
 export default (app: Application) => {
+
 }

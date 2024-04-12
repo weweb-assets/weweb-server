@@ -2,6 +2,7 @@ import { RequestWebsite } from 'ww-request'
 import { Response } from 'express'
 import { PluginSettings } from '../models/pluginSettings.model'
 import _ from 'lodash'
+// @ts-ignore
 import { Issuer, TokenSet, ClientMetadata } from 'openid-client'
 import { log } from '../services'
 
@@ -23,14 +24,14 @@ export default class OpenId {
             const { clientSecret } = settings.privateData
 
             const cookieName = encodeURIComponent(`oidc.user:${domain}:${clientId}`)
-            
+
             let tokensCookie = req.cookies[cookieName] || '{}'
 
-            if(tokensCookie.startsWith('%')) {
+            if (tokensCookie.startsWith('%')) {
                 tokensCookie = decodeURIComponent(tokensCookie)
             }
-            
-            const tokens = JSON.parse(tokensCookie)            
+
+            const tokens = JSON.parse(tokensCookie)
 
             const issuer = await Issuer.discover(domain)
             const client = new issuer.Client({

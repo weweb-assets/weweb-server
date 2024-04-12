@@ -91,6 +91,7 @@ export const ensureWebsite = async (req: RequestWebsite, res: Response, next: Ne
 }
 
 
+
 /**
  * Add View to Design.
  * @param req Request
@@ -100,6 +101,7 @@ export const ensureWebsite = async (req: RequestWebsite, res: Response, next: Ne
 export const addViewToDesign = async (req: RequestWebsite, res: Response, next: NextFunction) => {
     try {
         log.debug(`middlewares:website:addViewToDesign ${req.get('origin') || req.get('X-Forwarded-Host') || req.get('host')}${req.url}`)
+
 
 
         return next()

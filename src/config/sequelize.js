@@ -12,6 +12,7 @@ module.exports = {
         },
     },
     test: {
+
     },
     production: {
         username: process.env.RDS_USERNAME || process.env.DB_USERNAME,

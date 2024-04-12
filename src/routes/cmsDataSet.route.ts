@@ -8,4 +8,5 @@ const wwmt = require('weweb-microservice-token')
     Plugin Settings Route
 \================================================================================================*/
 export default (app: Application) => {
+
 }

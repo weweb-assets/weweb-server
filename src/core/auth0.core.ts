@@ -1,5 +1,6 @@
 import { RequestWebsite } from 'ww-request'
 import { Response } from 'express'
+// @ts-ignore
 import auth0 from 'auth0'
 import { PluginSettings } from '../models/pluginSettings.model'
 import { log } from '../services'

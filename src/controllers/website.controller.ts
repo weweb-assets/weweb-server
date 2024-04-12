@@ -28,7 +28,9 @@ export const getFile = async (req: RequestWebsite, res: Response, next: NextFunc
 
             let file
 
+
                 file = await websiteCore.getFile(key)
+
 
             const noCacheFiles = ['robots.txt', 'sitemap.xml']
             let cacheControl = 'public, max-age=31536000'
@@ -93,7 +95,9 @@ export const getDataFile = async (req: RequestWebsite, res: Response, next: Next
 
         let file
 
+
             file = await websiteCore.getFile(key)
+
 
         const headers = {
             'Content-Type': mime.lookup(key),
@@ -114,6 +118,7 @@ export const getDataFile = async (req: RequestWebsite, res: Response, next: Next
             if (path.startsWith('/')) path = path.substring(1)
             if (path.endsWith('/')) path = path.slice(0, -1)
             
+
         }
 
         return res.status(200).set(headers).send(pageJSON)
@@ -134,6 +139,7 @@ export const getIndex = async (req: RequestWebsite, res: Response, next: NextFun
         log.debug(`controllers:website:getIndex ${req.get('origin') || req.get('X-Forwarded-Host') || req.get('host')}${req.url}`)
 
 
+
         async function returnPageData(langParam: string) {
             //Fetch new version
             const path = req.designVersion.homePageId === req.page.pageId ? '' : `${req.page.paths[langParam || 'default'] || req.page.paths.default}`
@@ -150,9 +156,12 @@ export const getIndex = async (req: RequestWebsite, res: Response, next: NextFun
             }index.html`
 
 
+
             let file
 
+
                 file = await websiteCore.getFile(key)
+
 
             const headers = {
                 'Content-Type': mime.lookup(key),
@@ -171,6 +180,7 @@ export const getIndex = async (req: RequestWebsite, res: Response, next: NextFun
             let cleanPath = `${req.path}`
             if (cleanPath.startsWith('/')) cleanPath = cleanPath.substring(1)
             if (cleanPath.endsWith('/')) cleanPath = cleanPath.slice(0, -1)
+
 
 
             return res
