@@ -15,10 +15,14 @@ export const createCmsDataSet = async (req: Request, res: Response, next: NextFu
         if (!utils.isDefined([req.params.designId, req.params.designVersionId])) return res.status(400).send({ success: false, code: 'BAD_PARAMS' })
 
         const designVersion = await db.models.designVersion.findByPk(req.params.designVersionId)
-        if (!designVersion) return res.status(404).send({ success: false, code: 'NOT_FOUND' })
+        if (!designVersion) {
+            return res.status(404).send({ success: false, code: 'DESIGNVERSION_NOT_FOUND' })
+        }
 
         const pluginSettings = await db.models.pluginSettings.findByPk(req.body.settingsId)
-        if (!pluginSettings) return res.status(404).send({ success: false, code: 'NOT_FOUND' })
+        if (!pluginSettings) {
+            return res.status(404).send({ success: false, code: 'PLUGIN_SETTINGS_NOT_FOUND' })
+        }
 
         const cmsDataSet = await db.models.cmsDataSet.create({
             cmsDataSetId: req.body.id,

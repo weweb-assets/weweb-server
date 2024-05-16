@@ -2,6 +2,7 @@ import { RequestWebsite } from 'ww-request'
 import { Response } from 'express'
 import { PluginSettings } from '../models/pluginSettings.model'
 import _ from 'lodash'
+// @ts-ignore
 import { Issuer, TokenSet, ClientMetadata } from 'openid-client'
 import { log } from '../services'
 
@@ -23,14 +24,27 @@ export default class OpenId {
             const { clientSecret } = settings.privateData
 
             const cookieName = encodeURIComponent(`oidc.user:${domain}:${clientId}`)
-            
-            let tokensCookie = req.cookies[cookieName] || '{}'
 
-            if(tokensCookie.startsWith('%')) {
-                tokensCookie = decodeURIComponent(tokensCookie)
+            let tokens = {}
+
+            if(req.cookies[cookieName]) {
+                let tokensCookie = decodeURIComponent(req.cookies[cookieName] || '{}')
+
+                tokens = JSON.parse(tokensCookie)
             }
-            
-            const tokens = JSON.parse(tokensCookie)            
+            else if(req.cookies[cookieName + '.access_token']){
+                const cookieAccessToken = req.cookies[cookieName + '.access_token']
+                const cookieIdToken = req.cookies[cookieName + '.id_token']
+                const cookieRefreshToken = req.cookies[cookieName + '.refresh_token']
+                const cookieUserData = req.cookies[cookieName + '.user_data']
+
+                tokens = {
+                    access_token: cookieAccessToken === "null" ? null : cookieAccessToken,
+                    id_token: cookieIdToken === "null" ? null : cookieIdToken,
+                    refresh_token: cookieRefreshToken === "null" ? null : cookieRefreshToken,
+                    ...JSON.parse(decodeURIComponent(cookieUserData))
+                }
+            }
 
             const issuer = await Issuer.discover(domain)
             const client = new issuer.Client({
