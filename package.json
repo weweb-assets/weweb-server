@@ -1,6 +1,6 @@
 {
     "name": "weweb-preview",
-    "version": "1.2.14",
+    "version": "1.3.0",
     "description": "Description",
     "main": "./dist/index.js",
     "scripts": {
@@ -10,14 +10,13 @@
         "build": "tsc",
         "start": "node --inspect=0.0.0.0:3161 ./dist/index.js",
         "start:dev": "NODE_ENV=development sequelize db:migrate && nodemon --quiet  --inspect=0.0.0.0:3161",
-        "db:migrate": "node_modules/sequelize-cli/lib/sequelize db:migrate"
+        "migrations": "node_modules/sequelize-cli/lib/sequelize db:migrate"
     },
     "dependencies": {
         
         
-        "auth0": "^3.3.0",
-        "openid-client": "^5.1.9",
         "@supabase/supabase-js": "^1.35.3",
+        "auth0": "^3.3.0",
         "aws-sdk": "^2.1391.0",
         "axios": "^1.6.8",
         "body-parser": "^1.19.0",
@@ -31,6 +30,7 @@
         "jsdom": "^22.1.0",
         "mime-types": "^2.1.35",
         "morgan": "^1.10.0",
+        "openid-client": "^5.1.9",
         "pg": "^8.5.1",
         "pino": "^8.17.1",
         "pino-pretty": "^10.3.0",
@@ -50,7 +50,8 @@
         "@types/sequelize": "^4.28.14",
         "nodemon": "^3.0.1",
         "ts-node": "^10.8.0",
-        "typescript": "^4.7.2"
+        "typescript": "^4.7.2",
+        "js-beautify": "^1.14.11"
     },
     "repository": {
         "type": "git",

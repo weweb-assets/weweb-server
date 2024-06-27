@@ -295,6 +295,9 @@ export const ensureAuth = async (req: RequestWebsite, res: Response, next: NextF
     try {
         log.debug(`middlewares:website:ensureAuth ${req.get('origin') || req.get('X-Forwarded-Host') || req.get('host')}${req.url}`)
 
+        //New auth front -> skip backend auth
+        if(req.designVersion.version >= 1) return next()
+
         if (!req.page.userGroups.length) return next()
 
         const pluginSettings = await db.models.pluginSettings.findOne({

@@ -27,22 +27,23 @@ export default class OpenId {
 
             let tokens = {}
 
-            if(req.cookies[cookieName]) {
+            log.debug(`core:openId:core:ensureAuth cookieName ` + cookieName)
+            log.debug(`core:openId:core:ensureAuth cookies ` + JSON.stringify(req.cookies))
+            if (req.cookies[cookieName]) {
                 let tokensCookie = decodeURIComponent(req.cookies[cookieName] || '{}')
-
+                log.debug(`core:openId:core:ensureAuth tokens ` + tokensCookie)
                 tokens = JSON.parse(tokensCookie)
-            }
-            else if(req.cookies[cookieName + '.access_token']){
+            } else if (req.cookies[cookieName + '.access_token']) {
                 const cookieAccessToken = req.cookies[cookieName + '.access_token']
                 const cookieIdToken = req.cookies[cookieName + '.id_token']
                 const cookieRefreshToken = req.cookies[cookieName + '.refresh_token']
                 const cookieUserData = req.cookies[cookieName + '.user_data']
 
                 tokens = {
-                    access_token: cookieAccessToken === "null" ? null : cookieAccessToken,
-                    id_token: cookieIdToken === "null" ? null : cookieIdToken,
-                    refresh_token: cookieRefreshToken === "null" ? null : cookieRefreshToken,
-                    ...JSON.parse(decodeURIComponent(cookieUserData))
+                    access_token: cookieAccessToken === 'null' ? null : cookieAccessToken,
+                    id_token: cookieIdToken === 'null' ? null : cookieIdToken,
+                    refresh_token: cookieRefreshToken === 'null' ? null : cookieRefreshToken,
+                    ...JSON.parse(decodeURIComponent(cookieUserData)),
                 }
             }
 
@@ -55,9 +56,11 @@ export default class OpenId {
             })
 
             const user = await client.userinfo(new TokenSet(tokens))
-
-            const { roleKey, roleType, roleTypeKey, roles } = settings.privateData
+            log.debug(`core:openId:core:ensureAuth user ` + JSON.stringify(user))
+            log.debug(`core:openId:core:ensureAuth roleKey ` + settings.publicData.roleKey)
+            const { roleKey, roleType, roleTypeKey, roles } = settings.publicData
             const userRoles = _.get(user, roleKey) as any
+            log.debug(`core:openId:core:ensureAuth userRoles ` + userRoles)
 
             if (req.page.userGroups.length === 1) return true
             for (const userGroup of req.page.userGroups) {

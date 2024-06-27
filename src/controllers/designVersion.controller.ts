@@ -40,6 +40,7 @@ export const createDesignVersion = async (req: Request, res: Response, next: Nex
             designVersionId: req.body.designVersionId,
             cacheVersion: req.body.cacheVersion,
             homePageId: req.body.homePageId,
+            authPluginId: req.body.authPluginId,
             langs: req.body.langs,
             isLimited: req.body.isLimited,
         })

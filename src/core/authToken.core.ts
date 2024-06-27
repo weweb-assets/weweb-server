@@ -46,7 +46,7 @@ export default class AuthToken {
             const headers = { ...this.buildHeader(type, name, accessToken), ...(options.headers || {}) }
             const { data } = await axios.get(userEndpoint, { headers })
 
-            const { roleKey, roleType, roleTypeKey, roles } = settings.privateData
+            const { roleKey, roleType, roleTypeKey, roles } = settings.publicData
             const userRoles = _.get(data, roleKey)
 
             if (req.page.userGroups.length === 1) return true
