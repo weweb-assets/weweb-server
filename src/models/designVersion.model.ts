@@ -21,6 +21,7 @@ export interface DesignVersion {
     activeCheckpoint: boolean
     activeBackup: boolean
     isLimited: boolean
+    version: number
     readonly createdAt: Date
     readonly updatedAt: Date
 }
@@ -70,6 +71,10 @@ export const init = (sequelize: Sequelize): DesignVersionStatic => {
                 type: DataTypes.UUID,
                 allowNull: true,
             },
+            authPluginId: {
+                type: DataTypes.UUID,
+                allowNull: true,
+            },
             langs: {
                 type: DataTypes.JSONB,
                 allowNull: true,
@@ -98,6 +103,11 @@ export const init = (sequelize: Sequelize): DesignVersionStatic => {
                 type: DataTypes.BOOLEAN,
                 allowNull: false,
                 defaultValue: false,
+            },
+            version: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+                defaultValue: 1,
             },
         },
         {
@@ -155,6 +165,7 @@ export const init = (sequelize: Sequelize): DesignVersionStatic => {
             activeBackup: this.activeBackup,
             langs: this.langs,
             isLimited: this.isLimited,
+            version: this.version,
             createdAt: this.createdAt,
             updatedAt: this.updatedAt,
         }

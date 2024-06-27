@@ -52,7 +52,9 @@ export default class Auth0 {
             if (req.page.userGroups.length === 1) return true
             for (const userGroup of req.page.userGroups) {
                 if (!userGroup) continue
-                const rolesNotFound = userGroup.roles.filter((role: { value: string }) => !userRoles.find((userRole: auth0.Role) => userRole.id === role.value))
+                const rolesNotFound = userGroup.roles.filter(
+                    (role: { value: string }) => !userRoles.find((userRole: auth0.Role) => userRole.id === role.value || userRole.name === role.value)
+                )
                 if (!rolesNotFound.length) return true
             }
         } catch (error) {

@@ -27,22 +27,20 @@ export default class OpenId {
 
             let tokens = {}
 
-            if(req.cookies[cookieName]) {
+            if (req.cookies[cookieName]) {
                 let tokensCookie = decodeURIComponent(req.cookies[cookieName] || '{}')
-
                 tokens = JSON.parse(tokensCookie)
-            }
-            else if(req.cookies[cookieName + '.access_token']){
+            } else if (req.cookies[cookieName + '.access_token']) {
                 const cookieAccessToken = req.cookies[cookieName + '.access_token']
                 const cookieIdToken = req.cookies[cookieName + '.id_token']
                 const cookieRefreshToken = req.cookies[cookieName + '.refresh_token']
                 const cookieUserData = req.cookies[cookieName + '.user_data']
 
                 tokens = {
-                    access_token: cookieAccessToken === "null" ? null : cookieAccessToken,
-                    id_token: cookieIdToken === "null" ? null : cookieIdToken,
-                    refresh_token: cookieRefreshToken === "null" ? null : cookieRefreshToken,
-                    ...JSON.parse(decodeURIComponent(cookieUserData))
+                    access_token: cookieAccessToken === 'null' ? null : cookieAccessToken,
+                    id_token: cookieIdToken === 'null' ? null : cookieIdToken,
+                    refresh_token: cookieRefreshToken === 'null' ? null : cookieRefreshToken,
+                    ...JSON.parse(decodeURIComponent(cookieUserData)),
                 }
             }
 
@@ -55,8 +53,7 @@ export default class OpenId {
             })
 
             const user = await client.userinfo(new TokenSet(tokens))
-
-            const { roleKey, roleType, roleTypeKey, roles } = settings.privateData
+            const { roleKey, roleType, roleTypeKey, roles } = settings.publicData
             const userRoles = _.get(user, roleKey) as any
 
             if (req.page.userGroups.length === 1) return true
