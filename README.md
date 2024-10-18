@@ -136,9 +136,9 @@ You can generate a new Private Key at any time but this will invalidate the old 
 
 #### Requests available :
 
-[Start the publication of a project](#start-the-publication-of-a-project)
+[Start the deployment of a project](#start-the-deployment-of-a-project)
 
-[Check the publication status of a project](#check-the-publication-status-of-a-project)
+[Check the deployment status of a project](#check-the-deployment-status-of-a-project)
 
 [Download Raw project files ZIP (not built) by version](#download-raw-project-files-zip-not-built-by-version)
 
@@ -164,34 +164,34 @@ A typical auto deploy script should be :
  9. Activate the published version in you weweb-server using the version provided in the start publication step
 ```
 
-### Start the publication of a project
+### Start the deployment of a project
 
 -   **Method** : `POST`
 -   **URL** :
-    `https://api.weweb.io/public/v1/workspaces/{{:workspaceId}}/projects/{{:projectId}}/publish`
+    `https://api.weweb.io/public/v1/workspaces/{{:workspaceId}}/projects/{{:projectId}}/deploy`
     `:workspaceId` can be found in the URL of the workspace
     `:projectId` can be found in the URL of the project
 -   **Data** :
-    `env` [REQUIRED] : accepts values `production` or `staging` and defines the target of the publication. Publishing to production will also publish to staging.
-    `rawZip` [OPTIONAL] : accepts values `true` or `false` and defines if the publication generates a ZIP containing raw project files.
-    `builtZip` [OPTIONAL] : accepts values `production` or `staging` and defines if the publication generates a ZIP containing built project files.
-    `githubEnabled` [OPTIONAL] : accepts values `production` or `staging` and defines if the publication pushes raw project files to the configured Github repository.
+    `env` [REQUIRED] : accepts values `production` or `staging` and defines the target of the deployment. Deploying to production will also deploy to staging.
+    `rawZip` [OPTIONAL] : accepts values `true` or `false` and defines if the deployment generates a ZIP containing raw project files.
+    `builtZip` [OPTIONAL] : accepts values `production` or `staging` and defines if the deployment generates a ZIP containing built project files.
+    `githubEnabled` [OPTIONAL] : accepts values `production` or `staging` and defines if the deployment pushes raw project files to the configured Github repository.
 -   **Returns** :
 
 ```
 {
 	"message": "Fetching data",    //Progress message
-	"status": "deploying",    //Status of the publish. Can be : deploying / deployed / failed
+	"status": "deploying",    //Status of the deployment. Can be : deploying / deployed / failed
 	"version": 33,    //Version of current publish
 	"createdAt": "2022-12-12T16:13:47.142Z"    //Date of creation
 }
 ```
 
-### Check the publication status of a project
+### Check the deployment status of a project
 
 -   **Method** : `GET`
 -   **URL** :
-    `https://api.weweb.io/public/v1/workspaces/{{:workspaceId}}/projects/{{:projectId}}/publish/status`
+    `https://api.weweb.io/public/v1/workspaces/{{:workspaceId}}/projects/{{:projectId}}/deploy/status`
     `:workspaceId` can be found in the URL of the workspace
     `:projectId` can be found in the URL of the project
 -   **Data** : _no data_.
@@ -200,7 +200,7 @@ A typical auto deploy script should be :
 ```
 {
 	"message": "Fetching data",    //Progress message
-	"status": "deploying",    //Status of the publish. Can be : deploying / deployed / failed
+	"status": "deploying",    //Status of the deployment. Can be : deploying / deployed / failed
 	"environment": "production",    //Target environment
 	"version": 33,    //Version of current publish
 	"createdAt": "2022-12-12T16:13:47.142Z"    //Date of creation
