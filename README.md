@@ -181,7 +181,7 @@ A typical auto deploy script should be :
 ```
 {
 	"message": "Fetching data",    //Progress message
-	"status": "publish",    //Status of the publish. Can be : publish / published / error
+	"status": "deploying",    //Status of the publish. Can be : deploying / deployed / failed
 	"version": 33,    //Version of current publish
 	"createdAt": "2022-12-12T16:13:47.142Z"    //Date of creation
 }
@@ -200,7 +200,7 @@ A typical auto deploy script should be :
 ```
 {
 	"message": "Fetching data",    //Progress message
-	"status": "publish",    //Status of the publish. Can be : publish / published / error
+	"status": "deploying",    //Status of the publish. Can be : deploying / deployed / failed
 	"environment": "production",    //Target environment
 	"version": 33,    //Version of current publish
 	"createdAt": "2022-12-12T16:13:47.142Z"    //Date of creation
@@ -318,6 +318,6 @@ A typical auto deploy script should be :
     -   Removed data from response : `progress` is not present anymore in the result of the publish endpoint.
 -   The endpoint to monitor a publication has been updated and it's return value has been modified :
     -   Removed data from response : `progress` is not present anymore in the result of the publish endpoint. 
-        -   To know when a publication is done you have to monitor `status` in the response. Its value should be `published` when the publication is done.
+        -   To know when a publication is done you have to monitor `status` in the response. Its value should be `deployed` when the publication is done.
 -   The endpoint to generate the built ZIP has been deleted as it is no more useful. 
 -   The endpoint to get the built ZIP generation has been deleted as it is no more useful.
