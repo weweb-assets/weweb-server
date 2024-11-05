@@ -192,7 +192,7 @@ A typical auto deploy script should be :
 
 -   **Method** : `GET`
 -   **URL** :
-    `https://api.weweb.io/public/v1/workspaces/{{:workspaceId}}/projects/{{:projectId}}/deploy/status`
+    `https://api.weweb.io/public/v1/workspaces/{{:workspaceId}}/projects/{{:projectId}}/deploy/last`
     `:workspaceId` can be found in the URL of the workspace
     `:projectId` can be found in the URL of the project
 -   **Data** : _no data_.
