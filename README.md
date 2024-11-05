@@ -172,10 +172,11 @@ A typical auto deploy script should be :
     `:workspaceId` can be found in the URL of the workspace
     `:projectId` can be found in the URL of the project
 -   **Data** :
-    `env` [REQUIRED] : accepts values `production` or `staging` and defines the target of the deployment. Deploying to production will also deploy to staging.
-    `rawZip` [OPTIONAL] : accepts values `true` or `false` and defines if the deployment generates a ZIP containing raw project files.
-    `builtZip` [OPTIONAL] : accepts values `production` or `staging` and defines if the deployment generates a ZIP containing built project files.
-    `githubEnabled` [OPTIONAL] : accepts values `production` or `staging` and defines if the deployment pushes raw project files to the configured Github repository.
+    -   `env` [REQUIRED] : accepts values `production` or `staging` and defines the target of the deployment. Deploying to production will also deploy to staging.
+    -   `rawZip` [OPTIONAL] : accepts values `true` or `false` and defines if the deployment generates a ZIP containing raw project files.
+    -   `builtZip` [OPTIONAL] : accepts values `production` or `staging` and defines if the deployment generates a ZIP containing built project files.
+    -   `githubEnabled` [OPTIONAL] : accepts values `production` or `staging` and defines if the deployment pushes raw project files to the configured Github repository.
+    
 -   **Returns** :
 
 ```
