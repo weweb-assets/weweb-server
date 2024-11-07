@@ -115,6 +115,12 @@ Please contact the WeWeb team to get access to WeWeb Public API.
 
 Currently, access to WeWeb Public API is also granted if you have access to the self-hosting feature.
 
+## Beaking changes in last update
+
+Some breaking changes have been introduced in the latest version of the API.
+
+Check the [Breaking changes](#breaking-changes) section to know more.
+
 ## Authentication
 
 WeWeb Public API authentication is done using an `Authorization` header in every requests.
@@ -130,15 +136,11 @@ You can generate a new Private Key at any time but this will invalidate the old 
 
 #### Requests available :
 
-[Start the publication of a project](#start-the-publication-of-a-project)
+[Start the deployment of a project](#start-the-deployment-of-a-project)
 
-[Check the publication status of a project](#check-the-publication-status-of-a-project)
+[Check the deployment status of a project](#check-the-deployment-status-of-a-project)
 
 [Download Raw project files ZIP (not built) by version](#download-raw-project-files-zip-not-built-by-version)
-
-[Start project file ZIP (built and ready for deployment) generation by version](#start-project-file-zip-built-and-ready-for-deployment-generation-by-version)
-
-[Get project file ZIP (built and ready for deployment) generation status by version](#get-project-file-zip-built-and-ready-for-deployment-generation-status-by-version)
 
 [Download project files ZIP (built and ready for deployment) by version](#download-project-files-zip-built-and-ready-for-deployment-by-version)
 
@@ -153,44 +155,44 @@ You can generate a new Private Key at any time but this will invalidate the old 
 A typical auto deploy script should be :
 
 ```
- 1. Start the publication of a project.
+ 1. Start the publication of a project with "builtZip" set to true.
  2. Store the version provided by the previous request
  3. While the project is publishing, check the publication status of a project. The publication is done when the progress is 100 and status is "published".
- 4. Start project file ZIP (built and ready for deployment) generation by version using the version provided in the start publication step
- 5. While the ZIP file is being generated, get the generation status by version using the version provided in the start publication step
  6. Download project files ZIP by version using the version provided in the start publication step
  7. Save the downloaded ZIP file
- 8. Extract the download zip file to your weweb-server storage at the right place (defined by FILES_PATH
+ 8. Extract the download zip file to your weweb-server storage at the right place (defined by FILES_PATH)
  9. Activate the published version in you weweb-server using the version provided in the start publication step
 ```
 
-### Start the publication of a project
+### Start the deployment of a project
 
 -   **Method** : `POST`
 -   **URL** :
-    `https://api.weweb.io/public/v1/workspaces/{{:workspaceId}}/projects/{{:projectId}}/publish`
+    `https://api.weweb.io/public/v1/workspaces/{{:workspaceId}}/projects/{{:projectId}}/deploy`
     `:workspaceId` can be found in the URL of the workspace
     `:projectId` can be found in the URL of the project
 -   **Data** :
-    `env` : accepts values `production` or `staging` and defines the target of the publication. Publishing to production will also publish to staging.
+    -   `env` [REQUIRED] : accepts values `production` or `staging` and defines the target of the deployment. Deploying to production will also deploy to staging.
+    -   `rawZip` [OPTIONAL] : accepts values `true` or `false` and defines if the deployment generates a ZIP containing raw project files.
+    -   `builtZip` [OPTIONAL] : accepts values `true` or `false` and defines if the deployment generates a ZIP containing built project files.
+    -   `githubEnabled` [OPTIONAL] : accepts values `true` or `false` and defines if the deployment pushes raw project files to the configured Github repository.
+    
 -   **Returns** :
 
 ```
 {
-	"progress": 0,    //Progress of the publish from 0 to 100
 	"message": "Fetching data",    //Progress message
-	"status": "publish",    //Status of the publish. Can be : publish / published / error
-	"environment": "production",    //Target environment
+	"status": "deploying",    //Status of the deployment. Can be : deploying / deployed / failed
 	"version": 33,    //Version of current publish
 	"createdAt": "2022-12-12T16:13:47.142Z"    //Date of creation
 }
 ```
 
-### Check the publication status of a project
+### Check the deployment status of a project
 
 -   **Method** : `GET`
 -   **URL** :
-    `https://api.weweb.io/public/v1/workspaces/{{:workspaceId}}/projects/{{:projectId}}/publish/status`
+    `https://api.weweb.io/public/v1/workspaces/{{:workspaceId}}/projects/{{:projectId}}/deploy/last`
     `:workspaceId` can be found in the URL of the workspace
     `:projectId` can be found in the URL of the project
 -   **Data** : _no data_.
@@ -198,9 +200,8 @@ A typical auto deploy script should be :
 
 ```
 {
-	"progress": 0,    //Progress of the publish from 0 to 100
 	"message": "Fetching data",    //Progress message
-	"status": "publish",    //Status of the publish. Can be : publish / published / error
+	"status": "deploying",    //Status of the deployment. Can be : deploying / deployed / failed
 	"environment": "production",    //Target environment
 	"version": 33,    //Version of current publish
 	"createdAt": "2022-12-12T16:13:47.142Z"    //Date of creation
@@ -217,42 +218,6 @@ A typical auto deploy script should be :
     `:version` can be found in the `Versions` tab of the project or as a result of previous requests.
 -   **Data** : _no data_.
 -   **Returns** : a ZIP file containing the Raw project files.
-
-### Start project file ZIP (built and ready for deployment) generation by version
-
--   **Method** : `GET`
--   **URL** :
-    `https://api.weweb.io/public/v1/workspaces/{{:workspaceId}}/projects/{{:projectId}}/versions/{{:version}}/download/generate`
-    `:workspaceId` can be found in the URL of the workspace
-    `:projectId` can be found in the URL of the project
-    `:version` can be found in the `Versions` tab of the project or as a result of previous requests.
--   **Data** : _no data_.
--   **Returns** :
-
-```
-{
-	"progress": 0,    //Progress of the generation from 0 to 100
-	"status": "IN_PROGRESS",    //Status of the generation. Can be : IN_PROGRESS / DONE / ERROR
-}
-```
-
-### Get project file ZIP (built and ready for deployment) generation status by version
-
--   **Method** : `GET`
--   **URL** :
-    `https://api.weweb.io/public/v1/workspaces/{{:workspaceId}}/projects/{{:projectId}}/versions/{{:version}}/download/status`
-    `:workspaceId` can be found in the URL of the workspace
-    `:projectId` can be found in the URL of the project
-    `:version` can be found in the `Versions` tab of the project or as a result of previous requests.
--   **Data** : _no data_.
--   **Returns** :
-
-```
-{
-	"progress": 0,    //Progress of the generation from 0 to 100
-	"status": "IN_PROGRESS",    //Status of the generation. Can be : IN_PROGRESS / DONE / ERROR
-}
-```
 
 ### Download project files ZIP (built and ready for deployment) by version
 
@@ -321,3 +286,39 @@ A typical auto deploy script should be :
 	]
 }
 ```
+
+### [DELETED] ~~Start project file ZIP (built and ready for deployment) generation by version~~
+
+-   ~~**Method** : `GET`~~
+-   ~~**URL** :~~
+    ~~`https://api.weweb.io/public/v1/workspaces/{{:workspaceId}}/projects/{{:projectId}}/versions/{{:version}}/download/generate`~~
+    ~~`:workspaceId` can be found in the URL of the workspace~~
+    ~~`:projectId` can be found in the URL of the project~~
+    ~~`:version` can be found in the `Versions` tab of the project or as a result of previous requests.~~
+-   ~~**Data** : _no data_.~~
+
+### [DELETED] ~~Get project file ZIP (built and ready for deployment) generation status by version~~
+
+-   ~~**Method** : `GET`~~
+-   ~~**URL** :~~
+    ~~`https://api.weweb.io/public/v1/workspaces/{{:workspaceId}}/projects/{{:projectId}}/versions/{{:version}}/download/status`~~
+    ~~`:workspaceId` can be found in the URL of the workspace~~
+    ~~`:projectId` can be found in the URL of the project~~
+    ~~`:version` can be found in the `Versions` tab of the project or as a result of previous requests.~~
+-   ~~**Data** : _no data_.~~
+
+
+## Breaking changes
+
+### The last version of the publication changed some configuration in the Public API
+
+-   The endpoint to start a publication has been updated and its parameters has been modified :
+    -   New parameter : `builtZip` - BOOLEAN - set to `true` if you need the publication to generate a zip with the built files.
+    -   New parameter : `rawZip` - BOOLEAN - set to `true` if you need the publication to generate a zip with the raw files.
+    -   New parameter : `githubEnabled` - BOOLEAN - set to `true` if you need the publication tu push the raw files to a connected Github repository.
+    -   Removed data from response : `progress` is not present anymore in the result of the publish endpoint.
+-   The endpoint to monitor a publication has been updated and it's return value has been modified :
+    -   Removed data from response : `progress` is not present anymore in the result of the publish endpoint. 
+        -   To know when a publication is done you have to monitor `status` in the response. Its value should be `deployed` when the publication is done.
+-   The endpoint to generate the built ZIP has been deleted as it is no more useful. 
+-   The endpoint to get the built ZIP generation has been deleted as it is no more useful.
