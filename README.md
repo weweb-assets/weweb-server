@@ -205,6 +205,10 @@ A typical auto deploy script should be :
 	"status": "deploying",    //Status of the deployment. Can be : deploying / deployed / failed
 	"environment": "production",    //Target environment
 	"version": 33,    //Version of current publish
+	"logs": "deploy logs,    //Full logs of the deployment
+	"rawZip": true,    //rawZip option entered on deploy start
+        "builtZip": true,    //builtZip option entered on deploy start
+        "githubEnabled": false,    //githubEnabled option entered on deploy start
 	"createdAt": "2022-12-12T16:13:47.142Z"    //Date of creation
 }
 ```
