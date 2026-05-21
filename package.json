@@ -18,7 +18,7 @@
         "@supabase/supabase-js": "^1.35.3",
         "auth0": "^3.3.0",
         "aws-sdk": "^2.1391.0",
-        "axios": "^1.6.8",
+        "axios": "^1.16.1",
         "body-parser": "^1.19.0",
         "chalk": "^4.0.0",
         "cli-table3": "^0.6.0",
